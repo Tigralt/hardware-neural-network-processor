@@ -9,7 +9,7 @@ SC_MODULE(processing_engine_module)
     sc_in<bool> clk;
     sc_fifo_in<float> from_scheduler_weight;
     sc_fifo_in<float> from_scheduler_input;
-    sc_fifo_in<sc_uint<16>> from_scheduler_length;
+    sc_fifo_in< sc_uint<16> > from_scheduler_length;
     sc_fifo_out<float> to_scheduler;
 
     // STATES
@@ -21,7 +21,8 @@ SC_MODULE(processing_engine_module)
     // UTIL
     float activation_function(float input);
 
-    SC_CTOR(processing_engine_module)
+    typedef processing_engine_module SC_CURRENT_USER_MODULE;
+    processing_engine_module(::sc_core::sc_module_name = "processing_engine_module_")
     {
         state_length = 0;
 
