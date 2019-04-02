@@ -11,6 +11,7 @@ class top_module : public sc_core::sc_module
 {
 public:
     sc_in<bool> clk;
+    sc_in<bool> reset;
 
     // IO
     sc_fifo_in<unsigned int> dma_config;

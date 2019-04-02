@@ -7,6 +7,7 @@ int sc_main(int argc, char* argv[])
 
     sc_set_time_resolution(100.0, SC_PS);
     sc_clock clk("clk_0",1.0,SC_NS);
+    sc_signal<bool> reset;
 
     sc_fifo<unsigned int> dma_config(128);
     sc_fifo<float> dma_weight(2048);
@@ -15,6 +16,7 @@ int sc_main(int argc, char* argv[])
 
     top_module mod_top("top");
     mod_top.clk(clk);
+    mod_top.reset(reset);
     mod_top.dma_config(dma_config);
     mod_top.dma_weight(dma_weight);
     mod_top.dma_input(dma_input);

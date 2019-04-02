@@ -11,6 +11,7 @@ SC_MODULE(scheduler_module)
 {
     // PORTS
     sc_in<bool> clk;
+    sc_in<bool> reset;
     sc_fifo_in<float> from_weight;
     sc_fifo_in<float> from_io;
     sc_fifo_in<unsigned int> from_config;
@@ -48,6 +49,7 @@ SC_MODULE(scheduler_module)
         for (unsigned int i = 0; i < CORE; i++)
         {
             npu_manager[i].clk(clk);
+            npu_manager[i].reset(reset);
             npu_manager[i].from_scheduler_length(npu_length[i]);
             npu_manager[i].from_scheduler_weight(npu_weight[i]);
             npu_manager[i].from_scheduler_input(npu_input[i]);

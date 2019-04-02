@@ -7,6 +7,7 @@ SC_MODULE(config_module)
 {
     // PORTS
     sc_in<bool> clk;
+    sc_in<bool> reset;
     sc_fifo_in<unsigned int> from_dma;
     sc_fifo_out<unsigned int> to_weight;
     sc_fifo_out<unsigned int> to_io;

@@ -7,6 +7,7 @@ SC_MODULE(processing_engine_module)
 {
     // PORTS
     sc_in<bool> clk;
+    sc_in<bool> reset;
     sc_fifo_in<float> from_scheduler_weight;
     sc_fifo_in<float> from_scheduler_input;
     sc_fifo_in< sc_uint<16> > from_scheduler_length;
@@ -22,7 +23,7 @@ SC_MODULE(processing_engine_module)
     float activation_function(float input);
 
     typedef processing_engine_module SC_CURRENT_USER_MODULE;
-    processing_engine_module(::sc_core::sc_module_name = "processing_engine_module_")
+    processing_engine_module(::sc_core::sc_module_name = "processing_engine_module")
     {
         state_length = 0;
 
