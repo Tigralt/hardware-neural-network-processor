@@ -23,6 +23,7 @@ SC_MODULE(weight_module)
         state_length = 0;
 
         SC_CTHREAD(process, clk.pos());
+        reset_signal_is(reset,true);
     }
 };
 

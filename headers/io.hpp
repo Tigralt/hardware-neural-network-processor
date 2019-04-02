@@ -44,7 +44,10 @@ SC_MODULE(io_module)
         do_return = false;
 
         SC_CTHREAD(process, clk.pos());
+        reset_signal_is(reset,true);
+        
         SC_CTHREAD(process_dispatch_to_dma, clk.pos());
+        reset_signal_is(reset,true);
     }
 };
 

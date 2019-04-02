@@ -57,7 +57,10 @@ SC_MODULE(scheduler_module)
         }
 
         SC_CTHREAD(process, clk.pos());
+        reset_signal_is(reset,true);
+
         SC_CTHREAD(process_return, clk.pos());
+        reset_signal_is(reset,true);
     }
 };
 

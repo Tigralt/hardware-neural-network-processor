@@ -24,6 +24,7 @@ SC_MODULE(config_module)
         to_scheduler("to_scheduler")
     {
         SC_CTHREAD(process_drain_dma, clk.pos());
+        reset_signal_is(reset,true);
     }
 };
 
