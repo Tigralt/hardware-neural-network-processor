@@ -25,28 +25,33 @@ void scheduler_module::process(void)
         cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_input_vector_size << ")" << endl;
 #endif
 
-        for (unsigned int i = 0; i < CORE; i++)
-            npu_length[i].write(state_input_vector_size);
-
         from_config.read(state_next_length);
 
 #ifndef __SYNTHESIS__
         cout << "[scheduler_module] @" << sc_time_stamp() << " next loaded (" << state_next_length << ")" << endl;
 #endif
 
-        // Init
-        unsigned int input_counter = -1;
-        unsigned int loop_max = state_next_length * state_input_vector_size;
-
-        // Process
-        for (unsigned int i = 0, index; i < loop_max; i++)
+        // Load cores
+        for (unsigned int i = 0; i < CORE; i++)
         {
-            index = (i % state_next_length) % CORE;
-            if (index == 0)
-                input_counter++;
+            // If there is less nodes than cores, do not start unused cores
+            if (i >= state_next_length)
+                break;
 
-            npu_weight[index].write(from_weight.read());
-            npu_input[index].write(state_input_vector[input_counter]);
+            npu_length[i].write(state_input_vector_size);
+        }
+
+        // Schedule
+        for (unsigned int core_done = 0; core_done < state_next_length; core_done += CORE)
+        {
+            for (unsigned int input_counter = 0; input_counter < state_input_vector_size; input_counter++)
+            {
+                for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++)
+                {
+                    npu_weight[i % CORE].write(from_weight.read());
+                    npu_input[i % CORE].write(state_input_vector[input_counter % state_input_vector_size]);
+                }
+            }
         }
 
         to_io_ready.write(true);
@@ -55,7 +60,7 @@ void scheduler_module::process(void)
         float value;
         for (unsigned int i = 0; i < state_next_length; i++)
         {
-            npu_output[i].read(value);
+            npu_output[i % CORE].read(value);
             to_io.write(value);
 #ifndef __SYNTHESIS__
             cout << "[scheduler_module] @" << sc_time_stamp() << " returning result (" << value << ")" << endl;

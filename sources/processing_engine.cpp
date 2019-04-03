@@ -5,11 +5,14 @@ void processing_engine_module::process(void)
     while (true)
     {
         // Wait for length
-        from_scheduler_length.read(state_length);
+        if (state_length == 0)
+        {
+            from_scheduler_length.read(state_length);
 
 #ifndef __SYNTHESIS__
-        cout << "[processing_engine_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
+            cout << "[processing_engine_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
 #endif
+        }
 
         // Init
         float input, weight;
@@ -29,6 +32,14 @@ void processing_engine_module::process(void)
 #ifndef __SYNTHESIS__
         cout << "[processing_engine_module] @" << sc_time_stamp() << " returning result (" << output << ")" << endl;
 #endif
+
+        // If no more data, reset length
+        if (from_scheduler_input.num_available() == 0 && from_scheduler_weight.num_available() == 0)
+        {
+            state_length = 0;
+        }
+
+        wait();
     }
 }
 

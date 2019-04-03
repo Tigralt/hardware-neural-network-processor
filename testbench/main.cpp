@@ -26,6 +26,7 @@ int sc_main(int argc, char* argv[])
     dma_input.write(0.5f);
     dma_input.write(0.2f);
 
+#if CORE == 4
     // FOR 4 CORE
     dma_weight.write(0.1f);
     dma_weight.write(0.4f);
@@ -57,69 +58,75 @@ int sc_main(int argc, char* argv[])
     dma_weight.write(0.2f);
     dma_weight.write(0.2f);
     dma_weight.write(0.5f); // END LAYER OUTPUT
+#endif
 
-    // FOR 1 CORE
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(1.f);
-    // dma_weight.write(0.f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.5f); // END LAYER 1
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.3f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(0.9f);
-    // dma_weight.write(0.9f);
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(1.f);
-    // dma_weight.write(1.f); // END LAYER 2
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(0.1f); // END LAYER 3
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.5f); // END LAYER OUTPUT
-
+#if CORE == 2
     // FOR 2 CORE
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(1.f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.f);
-    // dma_weight.write(0.5f); // END LAYER 1
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.9f);
-    // dma_weight.write(0.3f);
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.9f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(1.f);
-    // dma_weight.write(1.f); // END LAYER 2
-    // dma_weight.write(0.1f);
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.4f);
-    // dma_weight.write(0.7f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.1f); // END LAYER 3
-    // dma_weight.write(0.5f);
-    // dma_weight.write(0.2f);
-    // dma_weight.write(0.5f); // END LAYER OUTPUT
+    dma_weight.write(0.1f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.7f);
+    dma_weight.write(1.f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.f);
+    dma_weight.write(0.5f); // END LAYER 1
+    dma_weight.write(0.2f);
+    dma_weight.write(0.9f);
+    dma_weight.write(0.3f);
+    dma_weight.write(0.1f);
+    dma_weight.write(0.7f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.9f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.5f);
+    dma_weight.write(1.f);
+    dma_weight.write(1.f); // END LAYER 2
+    dma_weight.write(0.1f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.7f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.1f); // END LAYER 3
+    dma_weight.write(0.5f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.5f); // END LAYER OUTPUT
+#endif
+
+#if CORE == 1
+    // FOR 1 CORE
+    dma_weight.write(0.1f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.7f);
+    dma_weight.write(1.f);
+    dma_weight.write(0.f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.5f); // END LAYER 1
+    dma_weight.write(0.2f);
+    dma_weight.write(0.3f);
+    dma_weight.write(0.7f);
+    dma_weight.write(0.9f);
+    dma_weight.write(0.9f);
+    dma_weight.write(0.1f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.5f);
+    dma_weight.write(1.f);
+    dma_weight.write(1.f); // END LAYER 2
+    dma_weight.write(0.1f);
+    dma_weight.write(0.4f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.5f);
+    dma_weight.write(0.7f);
+    dma_weight.write(0.1f); // END LAYER 3
+    dma_weight.write(0.5f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.2f);
+    dma_weight.write(0.5f); // END LAYER OUTPUT
+#endif
 
     dma_config.write(2);
     dma_config.write(4);
