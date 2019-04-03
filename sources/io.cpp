@@ -3,6 +3,7 @@
 void io_module::process(void)
 {
 #pragma HLS resource core = AXI4Stream variable = from_dma
+#pragma HLS resource core = AXI4Stream variable = to_dma
 
     to_scheduler_valid.write(false);
 
@@ -14,17 +15,14 @@ void io_module::process(void)
         to_scheduler_valid.write(false);
 
         // Process
+        state_to_return = state_length;
         from_config.read(state_length);
+        do_return = (state_length == 0);
 
 #ifndef __SYNTHESIS__
         cout << "[io_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
-#endif
+#endif      
 
-        // Update events
-        do_return = (state_length == 0);
-        if (!do_return)
-            state_to_return = state_length;
-    
         // Init
         float value;
 
@@ -59,29 +57,23 @@ void io_module::process(void)
 
         to_scheduler_valid.write(true);
         wait();
-    }
-}
 
-void io_module::process_dispatch_to_dma(void)
-{
-#pragma HLS resource core = AXI4Stream variable = to_dma
-    while (true)
-    {
-        while (!do_return)
-            wait();
-
-        float value;
-
-        for (unsigned int i = 0; i < state_to_return; i++)
+        // Return values to DMA
+        if (do_return)
         {
-            from_scheduler.read(value);
-            to_dma.write(value);
+            float value;
+
+            for (unsigned int i = 0; i < state_to_return; i++)
+            {
+                from_scheduler.read(value);
+                to_dma.write(value);
 
 #ifndef __SYNTHESIS__
-            cout << "[io_module] @" << sc_time_stamp() << " return [" << value << "] to DMA" << endl;
+                cout << "[io_module] @" << sc_time_stamp() << " return [" << value << "] to DMA" << endl;
 #endif
-        }
+            }
 
-        do_return = false;
+            do_return = false;
+        }
     }
 }

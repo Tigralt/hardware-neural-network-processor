@@ -38,12 +38,8 @@ SC_MODULE(scheduler_module)
     sc_uint<16> state_input_vector_size;
     float state_input_vector[INPUT_VECTOR];
 
-    // EVENTS
-    bool do_return;
-
     // PROCESS
     void process(void);
-    void process_return(void);
 
     SC_CTOR(scheduler_module) :
         N1("processing_engine_module_0"),
@@ -54,8 +50,6 @@ SC_MODULE(scheduler_module)
         state_input_length = 0;
         state_next_length = 0;
         state_input_vector_size = 0;
-
-        do_return = false;
 
         // for (unsigned int i = 0; i < CORE; i++)
         // {
@@ -73,9 +67,6 @@ SC_MODULE(scheduler_module)
         CORE_BIND(N4, 3);
 
         SC_CTHREAD(process, clk.pos());
-        reset_signal_is(reset,true);
-
-        SC_CTHREAD(process_return, clk.pos());
         reset_signal_is(reset,true);
     }
 };

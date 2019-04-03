@@ -7,10 +7,9 @@ void scheduler_module::process(void)
     while (true)
     {
         // Wait for events
-        while (!(from_io_valid.read() && !do_return))
+        while (!(from_io_valid.read()))
             wait();
         to_io_ready.write(false);
-        do_return = true;
 
         // Init
         float input, weight;
@@ -51,17 +50,8 @@ void scheduler_module::process(void)
         }
 
         to_io_ready.write(true);
-    }
-}
 
-void scheduler_module::process_return(void)
-{
-    while (true)
-    {
-        // Wait for event
-        while(!do_return)
-            wait();
-
+        // Return values
         float value;
         for (unsigned int i = 0; i < state_next_length; i++)
         {
@@ -71,7 +61,5 @@ void scheduler_module::process_return(void)
             cout << "[scheduler_module] @" << sc_time_stamp() << " returning result (" << value << ")" << endl;
 #endif
         }
-
-        do_return = false;
     }
 }

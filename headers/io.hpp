@@ -24,7 +24,6 @@ SC_MODULE(io_module)
 
     // PROCESS
     void process(void);
-    void process_dispatch_to_dma(void);
 
     SC_CTOR(io_module) :
         clk("clock"),
@@ -38,15 +37,13 @@ SC_MODULE(io_module)
     {
         // Init STATES
         state_length = 0;
+        state_to_return = 0;
 
         // Init EVENTS
         do_load_from_dma = true;
         do_return = false;
 
         SC_CTHREAD(process, clk.pos());
-        reset_signal_is(reset,true);
-        
-        SC_CTHREAD(process_dispatch_to_dma, clk.pos());
         reset_signal_is(reset,true);
     }
 };
