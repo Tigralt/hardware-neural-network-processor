@@ -73,7 +73,10 @@ void io_module::process(void)
 #endif
             }
 
+            // Reset
             do_return = false;
+            do_load_from_dma = true;
+            state_to_return = 0;
         }
     }
 }
