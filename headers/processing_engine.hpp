@@ -22,8 +22,7 @@ SC_MODULE(processing_engine_module)
     // UTIL
     float activation_function(float input);
 
-    typedef processing_engine_module SC_CURRENT_USER_MODULE;
-    processing_engine_module(::sc_core::sc_module_name = "processing_engine_module")
+    SC_CTOR(processing_engine_module)
     {
         state_length = 0;
 

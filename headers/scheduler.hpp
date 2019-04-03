@@ -7,6 +7,13 @@
 #define CORE 4
 #define INPUT_VECTOR 2048
 
+#define CORE_BIND(NAME, INDEX)  NAME.clk(clk); \
+                                NAME.reset(reset); \
+                                NAME.from_scheduler_length(npu_length[INDEX]); \
+                                NAME.from_scheduler_weight(npu_weight[INDEX]); \
+                                NAME.from_scheduler_input(npu_input[INDEX]); \
+                                NAME.to_scheduler(npu_output[INDEX]);
+
 SC_MODULE(scheduler_module)
 {
     // PORTS
@@ -24,7 +31,7 @@ SC_MODULE(scheduler_module)
     sc_fifo<float> npu_weight[CORE];
     sc_fifo<float> npu_input[CORE];
     sc_fifo<float> npu_output[CORE];
-    processing_engine_module npu_manager[CORE];
+    processing_engine_module N1, N2, N3, N4;
 
     // STATES
     unsigned int state_input_length, state_next_length;
@@ -38,7 +45,11 @@ SC_MODULE(scheduler_module)
     void process(void);
     void process_return(void);
 
-    SC_CTOR(scheduler_module)
+    SC_CTOR(scheduler_module) :
+        N1("processing_engine_module_0"),
+        N2("processing_engine_module_1"),
+        N3("processing_engine_module_2"),
+        N4("processing_engine_module_3")
     {
         state_input_length = 0;
         state_next_length = 0;
@@ -46,15 +57,20 @@ SC_MODULE(scheduler_module)
 
         do_return = false;
 
-        for (unsigned int i = 0; i < CORE; i++)
-        {
-            npu_manager[i].clk(clk);
-            npu_manager[i].reset(reset);
-            npu_manager[i].from_scheduler_length(npu_length[i]);
-            npu_manager[i].from_scheduler_weight(npu_weight[i]);
-            npu_manager[i].from_scheduler_input(npu_input[i]);
-            npu_manager[i].to_scheduler(npu_output[i]);
-        }
+        // for (unsigned int i = 0; i < CORE; i++)
+        // {
+        //     npu_manager[i].clk(clk);
+        //     npu_manager[i].reset(reset);
+        //     npu_manager[i].from_scheduler_length(npu_length[i]);
+        //     npu_manager[i].from_scheduler_weight(npu_weight[i]);
+        //     npu_manager[i].from_scheduler_input(npu_input[i]);
+        //     npu_manager[i].to_scheduler(npu_output[i]);
+        // }
+
+        CORE_BIND(N1, 0);
+        CORE_BIND(N2, 1);
+        CORE_BIND(N3, 2);
+        CORE_BIND(N4, 3);
 
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset,true);
