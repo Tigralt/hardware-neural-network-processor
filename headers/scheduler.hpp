@@ -37,16 +37,6 @@ SC_MODULE(scheduler_module)
         state_next_length = 0;
         state_input_vector_size = 0;
 
-        // for (unsigned int i = 0; i < CORE; i++)
-        // {
-        //     npu_manager[i].clk(clk);
-        //     npu_manager[i].reset(reset);
-        //     npu_manager[i].from_scheduler_length(npu_length[i]);
-        //     npu_manager[i].from_scheduler_weight(npu_weight[i]);
-        //     npu_manager[i].from_scheduler_input(npu_input[i]);
-        //     npu_manager[i].to_scheduler(npu_output[i]);
-        // }
-
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset, true);
     }
