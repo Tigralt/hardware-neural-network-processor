@@ -32,12 +32,9 @@ void scheduler_module::process(void)
 #endif
 
         // Load cores
-        for (unsigned int i = 0; i < CORE; i++)
+        // If there is less nodes than cores, do not start unused cores
+        for (unsigned int i = 0; i <= state_next_length && i < CORE; i++)
         {
-            // If there is less nodes than cores, do not start unused cores
-            if (i >= state_next_length)
-                break;
-
             npu_length[i].write(state_input_vector_size);
         }
 
