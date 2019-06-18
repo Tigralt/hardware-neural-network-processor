@@ -147,10 +147,20 @@ int sc_main(int argc, char* argv[])
     #endif
 
     #ifndef __SYNTHESIS__
+        float assert[2] {0.129079f, 0.151855f};
+        bool assertion = true;
+
         cout << endl << "=== Result ===" << endl;
+        unsigned int i = 0;
         float o;
-        while(dma_output.nb_read(o))
+        while(dma_output.nb_read(o)) {
             cout << o << endl;
+            assertion = assertion || (o == assert[i++]);
+        }
+
+        cout << endl << "Test: ";
+        if (assertion) cout << "OK" << endl;
+        else cout << "NOK" << endl;
     #endif
 
     return 0;

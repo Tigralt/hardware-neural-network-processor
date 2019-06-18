@@ -2,30 +2,40 @@
 
 void scheduler_module::process(void)
 {
-    to_io_ready.write(true);
+#pragma HLS resource core=AXI4Stream variable=from_weight
+#pragma HLS resource core=AXI4Stream variable=from_io
+#pragma HLS resource core=AXI4Stream variable=from_config_next
+#pragma HLS resource core=AXI4Stream variable=from_config_current
+#pragma HLS resource core=AXI4Stream variable=to_io
+
+#pragma HLS array_partition variable=npu_length complete dim=1
+#pragma HLS array_partition variable=npu_weight complete dim=1
+#pragma HLS array_partition variable=npu_output complete dim=1
+#pragma HLS array_partition variable=npu_input complete dim=1
+
+#pragma HLS resource core=AXI4Stream variable=npu_length
+#pragma HLS resource core=AXI4Stream variable=npu_weight
+#pragma HLS resource core=AXI4Stream variable=npu_output
+#pragma HLS resource core=AXI4Stream variable=npu_input
 
     while (true)
     {
-        // Wait for events
-        while (!(from_io_valid.read()))
-            wait();
-        to_io_ready.write(false);
-
         // Init
         float input, weight;
-        state_input_vector_size = 0;
+        from_config_current.read(state_current_vector_size);
 
         // Process
-        while (from_io.nb_read(input))
+        for (unsigned int i = 0; i < state_current_vector_size; i++)
         {
-            state_input_vector[state_input_vector_size++] = input;
+            from_io.read(input);
+            state_current_vector[i] = input;
         }
 
 #ifndef __SYNTHESIS__
-        cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_input_vector_size << ")" << endl;
+        cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_current_vector_size << ")" << endl;
 #endif
 
-        from_config.read(state_next_length);
+        from_config_next.read(state_next_length);
 
 #ifndef __SYNTHESIS__
         cout << "[scheduler_module] @" << sc_time_stamp() << " next loaded (" << state_next_length << ")" << endl;
@@ -35,23 +45,21 @@ void scheduler_module::process(void)
         // If there is less nodes than cores, do not start unused cores
         for (unsigned int i = 0; i <= state_next_length && i < CORE; i++)
         {
-            npu_length[i].write(state_input_vector_size);
+            npu_length[i].write(state_current_vector_size);
         }
 
         // Schedule
         for (unsigned int core_done = 0; core_done < state_next_length; core_done += CORE)
         {
-            for (unsigned int input_counter = 0; input_counter < state_input_vector_size; input_counter++)
+            for (unsigned int current_counter = 0; current_counter < state_current_vector_size; current_counter++)
             {
                 for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++)
                 {
                     npu_weight[i % CORE].write(from_weight.read());
-                    npu_input[i % CORE].write(state_input_vector[input_counter % state_input_vector_size]);
+                    npu_input[i % CORE].write(state_current_vector[current_counter % state_current_vector_size]);
                 }
             }
         }
-
-        to_io_ready.write(true);
 
         // Return values
         float value;

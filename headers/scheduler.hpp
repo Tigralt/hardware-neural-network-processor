@@ -13,10 +13,9 @@ SC_MODULE(scheduler_module)
     sc_in<bool> reset;
     sc_fifo_in<float> from_weight;
     sc_fifo_in<float> from_io;
-    sc_fifo_in<unsigned int> from_config;
+    sc_fifo_in<unsigned int> from_config_current;
+    sc_fifo_in<unsigned int> from_config_next;
     sc_fifo_out<float> to_io;
-    sc_in<bool> from_io_valid;
-    sc_out<bool> to_io_ready;
 
     // PROCESSING ENGINES
     sc_fifo_out<unsigned int> npu_length[CORE];
@@ -25,17 +24,17 @@ SC_MODULE(scheduler_module)
     sc_fifo_in<float> npu_output[CORE];
 
     // STATES
-    unsigned int state_input_length, state_next_length, state_input_vector_size;
-    float state_input_vector[INPUT_VECTOR];
+    unsigned int state_current_length, state_next_length, state_current_vector_size;
+    float state_current_vector[INPUT_VECTOR];
 
     // PROCESS
     void process(void);
 
     SC_CTOR(scheduler_module)
     {
-        state_input_length = 0;
+        state_current_length = 0;
         state_next_length = 0;
-        state_input_vector_size = 0;
+        state_current_vector_size = 0;
 
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset, true);

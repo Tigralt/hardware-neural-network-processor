@@ -4,16 +4,12 @@ void io_module::process(void)
 {
 #pragma HLS resource core = AXI4Stream variable = from_dma
 #pragma HLS resource core = AXI4Stream variable = to_dma
-
-    to_scheduler_valid.write(false);
+#pragma HLS resource core = AXI4Stream variable = from_config
+#pragma HLS resource core = AXI4Stream variable = from_scheduler
+#pragma HLS resource core = AXI4Stream variable = to_scheduler
 
     while (true)
     {
-        // Wait for event
-        while (!from_scheduler_ready.read())
-            wait();
-        to_scheduler_valid.write(false);
-
         // Process
         state_to_return = state_length;
         from_config.read(state_length);
@@ -54,9 +50,6 @@ void io_module::process(void)
 #endif
             }
         }
-
-        to_scheduler_valid.write(true);
-        wait();
 
         // Return values to DMA
         if (do_return)

@@ -31,12 +31,11 @@ class top_module : public sc_core::sc_module
     // Internal
     sc_fifo<unsigned int> fifo_weight_length;
     sc_fifo<unsigned int> fifo_input_length;
+    sc_fifo<unsigned int> fifo_current_length;
     sc_fifo<unsigned int> fifo_next_length;
     sc_fifo<float> fifo_weight;
     sc_fifo<float> fifo_input;
     sc_fifo<float> fifo_output;
-    sc_signal<bool> valid;
-    sc_signal<bool> ready;
 
     sc_fifo<unsigned int> npu_length[CORE];
     sc_fifo<float> npu_weight[CORE];

@@ -13,8 +13,6 @@ SC_MODULE(io_module)
     sc_fifo_in<unsigned int> from_config;
     sc_fifo_in<float> from_scheduler;
     sc_fifo_out<float> to_scheduler;
-    sc_in<bool> from_scheduler_ready;
-    sc_out<bool> to_scheduler_valid;
 
     // STATES
     unsigned int state_length, state_to_return;
@@ -31,9 +29,7 @@ SC_MODULE(io_module)
         to_dma("to_dma"),
         from_config("from_config"),
         from_scheduler("from_scheduler"),
-        to_scheduler("to_scheduler"),
-        from_scheduler_ready("from_scheduler_ready"),
-        to_scheduler_valid("to_scheduler_valid")
+        to_scheduler("to_scheduler")
     {
         // Init STATES
         state_length = 0;

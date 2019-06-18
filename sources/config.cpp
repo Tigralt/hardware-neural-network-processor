@@ -3,10 +3,13 @@
 void config_module::process_drain_dma(void)
 {
 #pragma HLS resource core = AXI4Stream variable = from_dma
+#pragma HLS resource core = AXI4Stream variable = to_weight
+#pragma HLS resource core = AXI4Stream variable = to_io
+#pragma HLS resource core = AXI4Stream variable = to_scheduler_current
+#pragma HLS resource core = AXI4Stream variable = to_scheduler_next
 
     while (true)
     {
-
         // Init
         unsigned int old_layer, current_layer = 1;
         from_dma.read(old_layer);
@@ -24,7 +27,8 @@ void config_module::process_drain_dma(void)
             { // Dispach data
                 to_io.write(old_layer);
                 to_weight.write(current_layer * old_layer);
-                to_scheduler.write(current_layer);
+                to_scheduler_current.write(old_layer);
+                to_scheduler_next.write(current_layer);
                 old_layer = current_layer;
             }
             else
