@@ -5,6 +5,7 @@ top_module::top_module(sc_module_name name) : clk("clock"),
                                               mod_weight("weight"),
                                               mod_io("io"),
                                               mod_scheduler("scheduler"),
+                                              mod_switch("switch"),
 #if CORE == 4
                                               mod_core_1("mod_core_1"),
                                               mod_core_2("mod_core_2"),
@@ -16,7 +17,6 @@ top_module::top_module(sc_module_name name) : clk("clock"),
 #elif CORE == 1
                                               mod_core_1("mod_core_1")
 #endif
-
 {
     mod_config.clk(clk);
     mod_config.reset(reset);
@@ -34,11 +34,10 @@ top_module::top_module(sc_module_name name) : clk("clock"),
 
     mod_io.clk(clk);
     mod_io.reset(reset);
-    mod_io.from_dma(dma_input);
+    mod_io.inputs(fifo_switch);
     mod_io.to_dma(dma_output);
     mod_io.from_config(fifo_input_length);
     mod_io.to_scheduler(fifo_input);
-    mod_io.from_scheduler(fifo_output);
 
     mod_scheduler.clk(clk);
     mod_scheduler.reset(reset);
@@ -47,6 +46,12 @@ top_module::top_module(sc_module_name name) : clk("clock"),
     mod_scheduler.to_io(fifo_output);
     mod_scheduler.from_config_current(fifo_current_length);
     mod_scheduler.from_config_next(fifo_next_length);
+
+    mod_switch.clk(clk);
+    mod_switch.reset(reset);
+    mod_switch.in1(dma_input);
+    mod_switch.in2(fifo_output);
+    mod_switch.out(fifo_switch);
 
     for (unsigned int i = 0; i < CORE; i++)
     {

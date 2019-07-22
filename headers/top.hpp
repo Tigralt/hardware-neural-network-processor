@@ -7,6 +7,7 @@
 #include "io.hpp"
 #include "scheduler.hpp"
 #include "processing_engine.hpp"
+#include "switch.hpp"
 
 #define CORE_BIND(NAME, INDEX)                     \
     NAME.clk(clk);                                 \
@@ -18,7 +19,7 @@
 
 class top_module : public sc_core::sc_module
 {
-  public:
+public:
     sc_in<bool> clk;
     sc_in<bool> reset;
 
@@ -36,6 +37,7 @@ class top_module : public sc_core::sc_module
     sc_fifo<float> fifo_weight;
     sc_fifo<float> fifo_input;
     sc_fifo<float> fifo_output;
+    sc_fifo<float> fifo_switch;
 
     sc_fifo<unsigned int> npu_length[CORE];
     sc_fifo<float> npu_weight[CORE];
@@ -47,6 +49,10 @@ class top_module : public sc_core::sc_module
     weight_module mod_weight;
     io_module mod_io;
     scheduler_module mod_scheduler;
+
+#ifndef __SYNTHESIS__
+    switch_module mod_switch;
+#endif
 
 // Cores
 #if CORE == 4
