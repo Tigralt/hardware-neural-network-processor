@@ -2,21 +2,21 @@
 
 void scheduler_module::process(void)
 {
-#pragma HLS resource core=AXI4Stream variable=from_weight
-#pragma HLS resource core=AXI4Stream variable=from_io
-#pragma HLS resource core=AXI4Stream variable=from_config_next
-#pragma HLS resource core=AXI4Stream variable=from_config_current
-#pragma HLS resource core=AXI4Stream variable=to_io
+#pragma HLS resource core = AXI4Stream variable = from_weight
+#pragma HLS resource core = AXI4Stream variable = from_io
+#pragma HLS resource core = AXI4Stream variable = from_config_next
+#pragma HLS resource core = AXI4Stream variable = from_config_current
+#pragma HLS resource core = AXI4Stream variable = to_io
 
-#pragma HLS array_partition variable=npu_length complete dim=1
-#pragma HLS array_partition variable=npu_weight complete dim=1
-#pragma HLS array_partition variable=npu_output complete dim=1
-#pragma HLS array_partition variable=npu_input complete dim=1
+#pragma HLS array_partition variable = npu_length complete dim = 1
+#pragma HLS array_partition variable = npu_weight complete dim = 1
+#pragma HLS array_partition variable = npu_output complete dim = 1
+#pragma HLS array_partition variable = npu_input complete dim = 1
 
-#pragma HLS resource core=AXI4Stream variable=npu_length
-#pragma HLS resource core=AXI4Stream variable=npu_weight
-#pragma HLS resource core=AXI4Stream variable=npu_output
-#pragma HLS resource core=AXI4Stream variable=npu_input
+#pragma HLS resource core = AXI4Stream variable = npu_length
+#pragma HLS resource core = AXI4Stream variable = npu_weight
+#pragma HLS resource core = AXI4Stream variable = npu_output
+#pragma HLS resource core = AXI4Stream variable = npu_input
 
     while (true)
     {
@@ -43,7 +43,7 @@ void scheduler_module::process(void)
 
         // Load cores
         // If there is less nodes than cores, do not start unused cores
-        for (unsigned int i = 0; i <= state_next_length && i < CORE; i++)
+        for (unsigned int i = 0; i < state_next_length && i < CORE; i++)
         {
             npu_length[i].write(state_current_vector_size);
         }
@@ -68,7 +68,7 @@ void scheduler_module::process(void)
             npu_output[i % CORE].read(value);
             to_io.write(value);
 #ifndef __SYNTHESIS__
-            cout << "[scheduler_module] @" << sc_time_stamp() << " returning result (" << value << ")" << endl;
+            cout << "[scheduler_module] @" << sc_time_stamp() << " returning result (" << value << ") " << "[" << (i+1) << "/" << state_next_length << "]" << endl;
 #endif
         }
     }
