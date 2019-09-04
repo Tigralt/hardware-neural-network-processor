@@ -11,11 +11,11 @@ void config_module::process_drain_dma(void)
     while (true)
     {
         // Init
-        unsigned int old_layer, current_layer = 1;
+        unsigned int old_layer, current_layer;
         from_dma.read(old_layer);
 
         // Main process
-        while (current_layer > 0)
+        do
         {
             from_dma.read(current_layer);
 
@@ -23,18 +23,12 @@ void config_module::process_drain_dma(void)
             cout << "[config_module] @" << sc_time_stamp() << " loading network configuration" << endl;
 #endif
 
-            if (current_layer > 0)
-            { // Dispach data
-                to_io.write(old_layer);
-                to_weight.write(current_layer * old_layer);
-                to_scheduler_current.write(old_layer);
-                to_scheduler_next.write(current_layer);
-                old_layer = current_layer;
-            }
-            else
-            { // END
-                to_io.write(current_layer);
-            }
-        }
+            to_io.write(old_layer);
+            to_weight.write(current_layer * old_layer);
+            to_scheduler_current.write(old_layer);
+            to_scheduler_next.write(current_layer);
+            old_layer = current_layer;
+            
+        } while (current_layer > 0);
     }
 }

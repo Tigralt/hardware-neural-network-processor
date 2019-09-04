@@ -35,7 +35,6 @@ top_module::top_module(sc_module_name name) : clk("clock"),
     mod_io.clk(clk);
     mod_io.reset(reset);
     mod_io.inputs(fifo_switch);
-    mod_io.to_dma(dma_output);
     mod_io.from_config(fifo_input_length);
     mod_io.to_scheduler(fifo_input);
 
@@ -44,6 +43,7 @@ top_module::top_module(sc_module_name name) : clk("clock"),
     mod_scheduler.from_weight(fifo_weight);
     mod_scheduler.from_io(fifo_input);
     mod_scheduler.to_io(fifo_output);
+    mod_scheduler.to_dma(dma_output);
     mod_scheduler.from_config_current(fifo_current_length);
     mod_scheduler.from_config_next(fifo_next_length);
 
