@@ -22,6 +22,9 @@ int sc_main(int argc, char* argv[])
     mod_top.dma_input(dma_input);
     mod_top.dma_output(dma_output);
 
+    // Test results:
+    float assert[4] {0.11978f, 0.141543f, 0.129079f, 0.151855f};
+
 
     ///////////////////
     // SIMULATION #1 //
@@ -29,8 +32,8 @@ int sc_main(int argc, char* argv[])
 
 
     // Init DMA
-    dma_input.write(0.5f);
     dma_input.write(0.2f);
+    dma_input.write(0.5f);
 
 #if CORE == 4
     // FOR 4 CORE
@@ -153,7 +156,6 @@ int sc_main(int argc, char* argv[])
     #endif
 
     #ifndef __SYNTHESIS__
-        float assert[2] {0.129079f, 0.151855f};
         bool assertion = true;
 
         cout << endl << "=== Result ===" << endl;
@@ -306,7 +308,6 @@ int sc_main(int argc, char* argv[])
         assertion = true;
 
         cout << endl << "=== Result ===" << endl;
-        i = 0;
         while(dma_output.nb_read(o)) {
             cout << o << endl;
             assertion = assertion && (fabs(o - assert[i++]) < 0.00001f);
