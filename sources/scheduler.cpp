@@ -63,6 +63,7 @@ void scheduler_module::process(void)
 				// Send data to cores
 				for (unsigned int current_counter = 0; current_counter < state_current_vector_size; current_counter++)
 				{
+					#pragma HLS pipeline II=1 enable_flush
 					for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++)
 					{
 						npu_weight[i % CORE].write(from_weight.read());
@@ -71,6 +72,7 @@ void scheduler_module::process(void)
 				}
 
 				// Return output
+				#pragma HLS pipeline II=1 enable_flush
 				for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++) {
 					npu_output[i % CORE].read(output);
 					to_io.write(output);

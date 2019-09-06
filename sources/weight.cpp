@@ -3,6 +3,8 @@
 void weight_module::process(void)
 {
 #pragma HLS resource core = AXI4Stream variable = from_dma
+#pragma HLS resource core = AXI4Stream variable = from_config
+#pragma HLS resource core = AXI4Stream variable = to_scheduler
 
     while (true)
     {
@@ -13,6 +15,7 @@ void weight_module::process(void)
         float value;
 
         // Process
+        #pragma HLS pipeline II=1 enable_flush
         for (unsigned int i = 0; i < state_length; i++)
         {
             from_dma.read(value);

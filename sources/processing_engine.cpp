@@ -15,6 +15,7 @@ void processing_engine_module::process(void)
         float output = 0.f;
 
         // Process
+        #pragma HLS pipeline II=1 enable_flush
         for (unsigned int i = 0; i < state_length; i++)
         {
             from_scheduler_input.read(input);

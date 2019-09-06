@@ -14,12 +14,14 @@ void io_module::process(void)
 #ifndef __SYNTHESIS__
         cout << "[io_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
 #endif
+        #pragma HLS pipeline II=1 enable_flush
         for (unsigned int i = 0; i < state_length; i++)
         {
             state_loop_vector[i] = inputs.read();
         }
 
         // Process
+        #pragma HLS pipeline II=1 enable_flush
         for (unsigned int i = 0; i < state_length; i++)
         {
             to_scheduler.write(state_loop_vector[i]);
