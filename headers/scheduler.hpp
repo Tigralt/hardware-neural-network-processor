@@ -3,7 +3,7 @@
 
 #include <systemc.h>
 
-#define CORE 4
+#define CORE 8
 #define INPUT_VECTOR 2048
 
 SC_MODULE(scheduler_module)

@@ -57,7 +57,16 @@ public:
 #endif
 
 // Cores
-#if CORE == 4
+#if CORE == 8
+    processing_engine_module mod_core_1;
+    processing_engine_module mod_core_2;
+    processing_engine_module mod_core_3;
+    processing_engine_module mod_core_4;
+    processing_engine_module mod_core_5;
+    processing_engine_module mod_core_6;
+    processing_engine_module mod_core_7;
+    processing_engine_module mod_core_8;
+#elif CORE == 4
     processing_engine_module mod_core_1;
     processing_engine_module mod_core_2;
     processing_engine_module mod_core_3;

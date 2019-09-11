@@ -35,7 +35,7 @@ int sc_main(int argc, char* argv[])
     dma_input.write(0.2f);
     dma_input.write(0.5f);
 
-#if CORE == 4
+#if CORE == 8 || CORE == 4
     // FOR 4 CORE
     dma_weight.write(0.1f);
     dma_weight.write(0.4f);
@@ -184,7 +184,7 @@ int sc_main(int argc, char* argv[])
     dma_input.write(0.5f);
     dma_input.write(0.2f);
 
-#if CORE == 4
+#if CORE == 4 || CORE == 8
     // FOR 4 CORE
     dma_weight.write(0.1f);
     dma_weight.write(0.4f);
@@ -324,15 +324,15 @@ int sc_main(int argc, char* argv[])
     ///////////////////
 
     // Input
-    for (unsigned int i = 0; i < 784; i++)
-        dma_input.write(((float)(i % 10)) / 10.0f);
+    for (unsigned int i = 0; i < 1; i++)
+        dma_input.write(((float)((i+1) % 10)) / 10.0f);
 
     // Weights
-    for (unsigned int i = 0; i < 784 * 128 + 128 * 10; i++)
+    for (unsigned int i = 0; i < 3 + 3 * 10; i++)
         dma_weight.write(((float)(i % 10)) / 10.0f);
 
-    dma_config.write(784);
-    dma_config.write(128);
+    dma_config.write(1);
+    dma_config.write(3);
     dma_config.write(10);
     dma_config.write(0); // END
 
@@ -341,7 +341,7 @@ int sc_main(int argc, char* argv[])
         cout << "@" << sc_time_stamp() << " Start simulation #3" << endl;
     #endif
 
-    sc_start(15000, SC_NS);
+    sc_start(100, SC_NS);
 
     #ifndef __SYNTHESIS__
         cout << "@" << sc_time_stamp() << " Terminating simulation #3" << endl;
@@ -353,6 +353,39 @@ int sc_main(int argc, char* argv[])
             cout << o << endl;
         }
     #endif
+
+    // Input
+    for (unsigned int i = 0; i < 1; i++)
+        dma_input.write(((float)((i+1) % 10)) / 10.0f);
+
+    // Weights
+    for (unsigned int i = 0; i < 3 + 3 * 10; i++)
+        dma_weight.write(((float)(i % 10)) / 10.0f);
+
+    dma_config.write(1);
+    dma_config.write(3);
+    dma_config.write(10);
+    dma_config.write(0); // END
+
+    // Start simulation
+    #ifndef __SYNTHESIS__
+        cout << "@" << sc_time_stamp() << " Start simulation #3" << endl;
+    #endif
+
+    sc_start(100, SC_NS);
+
+    #ifndef __SYNTHESIS__
+        cout << "@" << sc_time_stamp() << " Terminating simulation #3" << endl;
+    #endif
+
+    #ifndef __SYNTHESIS__
+        cout << endl << "=== Result ===" << endl;
+        while(dma_output.nb_read(o)) {
+            cout << o << endl;
+        }
+    #endif
+
+    
 
     return 0;
 }

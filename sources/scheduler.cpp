@@ -23,14 +23,12 @@ void scheduler_module::process(void)
     while (true)
     {
         // Init
-        float input, weight, output;
         from_config_current.read(state_current_vector_size);
 
         // Process
         for (unsigned int i = 0; i < state_current_vector_size; i++)
         {
-            from_io.read(input);
-            state_current_vector[i] = input;
+            state_current_vector[i] = from_io.read();
         }
 
 #ifndef __SYNTHESIS__
@@ -55,7 +53,7 @@ void scheduler_module::process(void)
 			{
 				// Load cores
 				// If there is less nodes than cores, do not start unused cores
-				for (unsigned int i = 0; i < state_next_length && i < CORE; i++)
+				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
 					npu_length[i].write(state_current_vector_size);
 				}
@@ -64,7 +62,7 @@ void scheduler_module::process(void)
 				for (unsigned int current_counter = 0; current_counter < state_current_vector_size; current_counter++)
 				{
 					#pragma HLS pipeline II=1 enable_flush
-					for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++)
+					for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 					{
 						npu_weight[i % CORE].write(from_weight.read());
 						npu_input[i % CORE].write(state_current_vector[current_counter % state_current_vector_size]);
@@ -73,9 +71,8 @@ void scheduler_module::process(void)
 
 				// Return output
 				#pragma HLS pipeline II=1 enable_flush
-				for (unsigned int i = 0; core_done + i < state_next_length && i < CORE; i++) {
-					npu_output[i % CORE].read(output);
-					to_io.write(output);
+				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++) {
+					to_io.write(npu_output[i % CORE].read());
 				}
 			}
         }

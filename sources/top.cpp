@@ -6,7 +6,16 @@ top_module::top_module(sc_module_name name) : clk("clock"),
                                               mod_io("io"),
                                               mod_scheduler("scheduler"),
                                               mod_switch("switch"),
-#if CORE == 4
+#if CORE == 8
+                                              mod_core_1("mod_core_1"),
+                                              mod_core_2("mod_core_2"),
+                                              mod_core_3("mod_core_3"),
+                                              mod_core_4("mod_core_4"),
+                                              mod_core_5("mod_core_5"),
+                                              mod_core_6("mod_core_6"),
+                                              mod_core_7("mod_core_7"),
+                                              mod_core_8("mod_core_8")
+#elif CORE == 4
                                               mod_core_1("mod_core_1"),
                                               mod_core_2("mod_core_2"),
                                               mod_core_3("mod_core_3"),
@@ -61,7 +70,16 @@ top_module::top_module(sc_module_name name) : clk("clock"),
         mod_scheduler.npu_input[i](npu_input[i]);
     }
 
-#if CORE == 4
+#if CORE == 8
+    CORE_BIND(mod_core_1, 0);
+    CORE_BIND(mod_core_2, 1);
+    CORE_BIND(mod_core_3, 2);
+    CORE_BIND(mod_core_4, 3);
+    CORE_BIND(mod_core_5, 4);
+    CORE_BIND(mod_core_6, 5);
+    CORE_BIND(mod_core_7, 6);
+    CORE_BIND(mod_core_8, 7);
+#elif CORE == 4
     CORE_BIND(mod_core_1, 0);
     CORE_BIND(mod_core_2, 1);
     CORE_BIND(mod_core_3, 2);
