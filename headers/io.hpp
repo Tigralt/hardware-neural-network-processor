@@ -3,7 +3,7 @@
 
 #include <systemc.h>
 
-#define LOOP_VECTOR 2048
+#define LOOP_VECTOR 32768
 
 SC_MODULE(io_module)
 {
