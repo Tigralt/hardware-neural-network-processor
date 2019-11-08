@@ -7,11 +7,23 @@
         "system_error": "cpp",
         "type_traits": "cpp",
         "typeinfo": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "systemc.h": "cpp",
+        "climits": "cpp",
+        "cmath": "cpp",
+        "cstdio": "cpp",
+        "cstring": "cpp"
     },
     "C_Cpp.default.systemIncludePath": [
-        "/usr/local/include",
         "/usr/include",
+        "/usr/include/linux",
+        "/usr/include/c++/8",
+        "/usr/include/c++/8/tr1",
+        "/usr/include/x86_64-linux-gnu",
+        "/usr/include/x86_64-linux-gnu/c++/8",
+        "/usr/include/boost",
+        "/usr/include/boost/compatibility/cpp_c_headers",
+        "/usr/local/include",
         "/usr/local/systemc/debug/include"
     ]
 }
