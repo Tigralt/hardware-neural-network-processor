@@ -9,5 +9,9 @@
         "typeinfo": "cpp",
         "iostream": "cpp"
     },
-    "C_Cpp.default.systemIncludePath": ["/usr/local/systemc/debug/include"]
+    "C_Cpp.default.systemIncludePath": [
+        "/usr/local/include",
+        "/usr/include",
+        "/usr/local/systemc/debug/include"
+    ]
 }
