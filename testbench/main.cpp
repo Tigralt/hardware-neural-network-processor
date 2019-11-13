@@ -22,9 +22,6 @@ int sc_main(int argc, char* argv[])
     mod_top.dma_input(dma_input);
     mod_top.dma_output(dma_output);
 
-    // Test results:
-    float assert[4] {0.11978f, 0.141543f, 0.129079f, 0.151855f};
-
 
     ///////////////////
     // SIMULATION #1 //
@@ -32,117 +29,40 @@ int sc_main(int argc, char* argv[])
 
 
     // Init DMA
-    dma_input.write(0.2f);
-    dma_input.write(0.5f);
+    dma_input.write(0.0f);
+    dma_input.write(0.0f);
 
-#if CORE == 8 || CORE == 4
-    // FOR 4 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
-#endif
-
-#if CORE == 2
-    // FOR 2 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.7f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f);
-    dma_weight.write(1.f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
+#if CORE == 8 || CORE == 4 || CORE == 2
+    dma_weight.write(-1.347858071327209473e+00);
+    dma_weight.write(1.556262016296386719e+00);
+    dma_weight.write(1.326483130455017090e+00);
+    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
+    dma_weight.write(-2.849910736083984375e+00);
+    dma_weight.write(-2.041214227676391602e+00);
+    dma_weight.write(-2.712538480758666992e+00);
+    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
+    dma_weight.write(-2.038681268692016602e+00);
+    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
 #endif
 
 #if CORE == 1
-    // FOR 1 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f);
-    dma_weight.write(1.f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
+    dma_weight.write(-1.347858071327209473e+00);
+    dma_weight.write(1.326483130455017090e+00);
+    dma_weight.write(1.556262016296386719e+00);
+    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
+    dma_weight.write(-2.849910736083984375e+00);
+    dma_weight.write(-2.712538480758666992e+00);
+    dma_weight.write(-2.041214227676391602e+00);
+    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
+    dma_weight.write(-2.038681268692016602e+00);
+    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
 #endif
 
-    dma_config.write(2);
-    dma_config.write(4);
-    dma_config.write(3);
-    dma_config.write(2);
-    dma_config.write(2);
-    dma_config.write(0); // END
+    dma_config.write((2 << 2)); // Input
+    dma_config.write((2 << 2) + 2); // Hidden 1
+    dma_config.write((2 << 2) + 0); // Hidden 2
+    dma_config.write((1 << 2) + 1); // Output
+    dma_config.write((0 << 2)); // End Of Layers
 
     // Start simulation
     #ifndef __SYNTHESIS__
@@ -156,168 +76,14 @@ int sc_main(int argc, char* argv[])
     #endif
 
     #ifndef __SYNTHESIS__
-        bool assertion = true;
-
         cout << endl << "=== Result ===" << endl;
-        unsigned int i = 0;
         float o;
         while(dma_output.nb_read(o)) {
             cout  << o << endl;
-            assertion = assertion && (fabs(o - assert[i++]) < 0.00001f);
         }
-        assertion = assertion && i != 0;
-
-        cout << endl << "Test: ";
-        if (assertion) cout << "OK" << endl;
-        else cout << "NOK" << endl;
+        cout << "======================" << endl << endl;
     #endif
 
-    cout << endl << "======================" << endl << endl;
-
-
-    ///////////////////
-    // SIMULATION #2 //
-    ///////////////////
-
-
-    // Init DMA
-    dma_input.write(0.5f);
-    dma_input.write(0.2f);
-
-#if CORE == 4 || CORE == 8
-    // FOR 4 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.4f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
-#endif
-
-#if CORE == 2
-    // FOR 2 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.7f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f);
-    dma_weight.write(1.f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
-#endif
-
-#if CORE == 1
-    // FOR 1 CORE
-    dma_weight.write(0.1f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.7f);
-    dma_weight.write(1.f);
-    dma_weight.write(0.f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f); // END LAYER 1
-    dma_weight.write(0.2f);
-    dma_weight.write(0.3f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.9f);
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.5f);
-    dma_weight.write(1.f);
-    dma_weight.write(1.f); // END LAYER 2
-    dma_weight.write(0.1f);
-    dma_weight.write(0.4f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f);
-    dma_weight.write(0.7f);
-    dma_weight.write(0.1f); // END LAYER 3
-    dma_weight.write(0.5f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.2f);
-    dma_weight.write(0.5f); // END LAYER OUTPUT
-#endif
-
-    dma_config.write(2);
-    dma_config.write(4);
-    dma_config.write(3);
-    dma_config.write(2);
-    dma_config.write(2);
-    dma_config.write(0); // END
-
-    // Start simulation
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Start simulation #2" << endl;
-    #endif
-
-    sc_start(100, SC_NS);
-
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Terminating simulation #2" << endl;
-    #endif
-
-    #ifndef __SYNTHESIS__
-        assertion = true;
-
-        cout << endl << "=== Result ===" << endl;
-        while(dma_output.nb_read(o)) {
-            cout << o << endl;
-            assertion = assertion && (fabs(o - assert[i++]) < 0.00001f);
-        }
-        assertion = assertion && i != 0;
-
-        cout << endl << "Test: ";
-        if (assertion) cout << "OK" << endl;
-        else cout << "NOK" << endl;
-    #endif
 
     ///////////////////
     // SIMULATION #3 //
@@ -325,17 +91,17 @@ int sc_main(int argc, char* argv[])
 
     // Input
     for (unsigned int i = 0; i < 784; i++)
-        dma_input.write(((float)((i+1) % 10)) / 10.0f);
+        dma_input.write(((float)((i+1) % 10)) / 10000000.0f);
 
     // Weights
     for (unsigned int i = 0; i < 784 * 128 + 128 * 32 + 32 * 10; i++)
-        dma_weight.write(((float)(i % 10)) / 10.0f);
+        dma_weight.write(((float)(i % 10)) / 10000000.0f);
 
-    dma_config.write(784);
-    dma_config.write(128);
-    dma_config.write(32);
-    dma_config.write(10);
-    dma_config.write(0); // END
+    dma_config.write((784 << 2)); // Input
+    dma_config.write((128 << 2) + 2); // Hidden 1
+    dma_config.write((32 << 2) + 0); // Hidden 2
+    dma_config.write((10 << 2) + 3); // Output
+    dma_config.write(0); // End Of Layers
 
     // Start simulation
     #ifndef __SYNTHESIS__
