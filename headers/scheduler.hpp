@@ -17,13 +17,14 @@ SC_MODULE(scheduler_module)
     sc_fifo_out<float> to_dma;
 
     // PROCESSING ENGINES
-    sc_fifo_out<unsigned int> npu_instructions[CORE];
+    sc_fifo_out<sc_uint<17>> npu_instructions[CORE];
     sc_fifo_out<float> npu_weight[CORE];
     sc_fifo_out<float> npu_input[CORE];
     sc_fifo_in<float> npu_output[CORE];
 
     // STATES
-    unsigned int state_current_length, state_next_length, state_current_vector_size, state_activation_function;
+    sc_uint<15> state_current_length, state_next_length;
+    sc_uint<2> state_activation_function;
     bool state_get_external_inputs;
     float state_current_vector[INPUT_VECTOR];
 
@@ -35,7 +36,6 @@ SC_MODULE(scheduler_module)
         // Init STATES
         state_current_length = 0;
         state_next_length = 0;
-        state_current_vector_size = 0;
         state_activation_function = 0;
         state_get_external_inputs = false;
 

@@ -31,7 +31,7 @@ public:
     // Internal
     sc_fifo<unsigned int> fifo_instructions;
 
-    sc_fifo<unsigned int> npu_instructions[CORE];
+    sc_fifo<sc_uint<17>> npu_instructions[CORE];
     sc_fifo<float> npu_weight[CORE];
     sc_fifo<float> npu_input[CORE];
     sc_fifo<float> npu_output[CORE];

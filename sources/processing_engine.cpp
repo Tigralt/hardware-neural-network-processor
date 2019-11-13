@@ -8,7 +8,7 @@ void processing_engine_module::process(void)
 #pragma HLS resource core = AXI4Stream variable = to_scheduler
 
     // Init
-    unsigned int instructions;
+    sc_uint<17> instructions;
     float input, weight, output;
 
     while (true)
