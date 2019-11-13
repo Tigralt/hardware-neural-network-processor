@@ -2,19 +2,17 @@
 
 void scheduler_module::process(void)
 {
-#pragma HLS resource core = AXI4Stream variable = from_weight
-#pragma HLS resource core = AXI4Stream variable = from_io
-#pragma HLS resource core = AXI4Stream variable = from_config_instructions
-
-#pragma HLS resource core = AXI4Stream variable = to_io
+#pragma HLS resource core = AXI4Stream variable = from_dma_weight
+#pragma HLS resource core = AXI4Stream variable = from_dma_input
+#pragma HLS resource core = AXI4Stream variable = from_dma_instructions
 #pragma HLS resource core = AXI4Stream variable = to_dma
 
-#pragma HLS array_partition variable = npu_length complete dim = 1
+#pragma HLS array_partition variable = npu_instructions complete dim = 1
 #pragma HLS array_partition variable = npu_weight complete dim = 1
 #pragma HLS array_partition variable = npu_output complete dim = 1
 #pragma HLS array_partition variable = npu_input complete dim = 1
 
-#pragma HLS resource core = AXI4Stream variable = npu_length
+#pragma HLS resource core = AXI4Stream variable = npu_instructions
 #pragma HLS resource core = AXI4Stream variable = npu_weight
 #pragma HLS resource core = AXI4Stream variable = npu_input
 #pragma HLS resource core = AXI4Stream variable = npu_output
