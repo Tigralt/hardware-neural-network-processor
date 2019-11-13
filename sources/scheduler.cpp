@@ -23,7 +23,7 @@ void scheduler_module::process(void)
     {
         // Init
 		unsigned int instructions;
-        from_config_instructions.read(instructions);
+        from_dma_instructions.read(instructions);
 		state_current_length = (instructions & 0b11111111111111100000000000000000) >> 17;
 		state_next_length = (instructions & 0b00000000000000011111111111111100) >> 2;
 		state_activation_function = instructions & 0b11;

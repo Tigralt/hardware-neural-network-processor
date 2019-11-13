@@ -2,7 +2,6 @@
 #define TOP_HPP
 
 #include <systemc.h>
-#include "config.hpp"
 #include "scheduler.hpp"
 #include "processing_engine.hpp"
 
@@ -28,16 +27,12 @@ public:
     sc_fifo_in<float> dma_input;
     sc_fifo_out<float> dma_output;
 
-    // Internal
-    sc_fifo<unsigned int> fifo_instructions;
-
     sc_fifo<sc_uint<17>> npu_instructions[CORE];
     sc_fifo<float> npu_weight[CORE];
     sc_fifo<float> npu_input[CORE];
     sc_fifo<float> npu_output[CORE];
 
     // Modules
-    config_module mod_config;
     scheduler_module mod_scheduler;
 
 // Cores

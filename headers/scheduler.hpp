@@ -13,7 +13,7 @@ SC_MODULE(scheduler_module)
     sc_in<bool> reset;
     sc_fifo_in<float> from_dma_weight;
     sc_fifo_in<float> from_dma_input;
-    sc_fifo_in<unsigned int> from_config_instructions;
+    sc_fifo_in<unsigned int> from_dma_instructions;
     sc_fifo_out<float> to_dma;
 
     // PROCESSING ENGINES

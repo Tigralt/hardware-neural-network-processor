@@ -1,7 +1,6 @@
 #include "../headers/top.hpp"
 
 top_module::top_module(sc_module_name name) : clk("clock"),
-                                              mod_config("config"),
                                               mod_scheduler("scheduler"),
 #if CORE == 8
                                               mod_core_1("mod_core_1"),
@@ -24,17 +23,13 @@ top_module::top_module(sc_module_name name) : clk("clock"),
                                               mod_core_1("mod_core_1")
 #endif
 {
-    mod_config.clk(clk);
-    mod_config.reset(reset);
-    mod_config.from_dma(dma_config);
-    mod_config.to_scheduler_instructions(fifo_instructions);
 
     mod_scheduler.clk(clk);
     mod_scheduler.reset(reset);
     mod_scheduler.from_dma_weight(dma_weight);
     mod_scheduler.from_dma_input(dma_input);
     mod_scheduler.to_dma(dma_output);
-    mod_scheduler.from_config_instructions(fifo_instructions);
+    mod_scheduler.from_dma_instructions(dma_config);
 
     for (unsigned int i = 0; i < CORE; i++)
     {
