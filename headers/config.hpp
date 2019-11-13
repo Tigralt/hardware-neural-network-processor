@@ -9,8 +9,6 @@ SC_MODULE(config_module)
     sc_in<bool> clk;
     sc_in<bool> reset;
     sc_fifo_in<unsigned int> from_dma;
-    sc_fifo_out<unsigned int> to_weight;
-    sc_fifo_out<unsigned int> to_io;
     sc_fifo_out<unsigned int> to_scheduler_instructions;
 
     // PROCESS
@@ -19,8 +17,6 @@ SC_MODULE(config_module)
     SC_CTOR(config_module) :
         clk("clk"),
         from_dma("from_dma"),
-        to_weight("to_weight"),
-        to_io("to_io"),
         to_scheduler_instructions("to_scheduler_instructions")
     {
         SC_CTHREAD(process_drain_dma, clk.pos());

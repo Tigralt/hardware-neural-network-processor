@@ -28,10 +28,11 @@ void scheduler_module::process(void)
 		state_next_length = (instructions & 0b00000000000000011111111111111100) >> 2;
 		state_activation_function = instructions & 0b11;
 
+		// Read first inputs
         if (!state_get_external_inputs) {
 			for (unsigned int i = 0; i < state_current_vector_size; i++)
 			{
-				state_current_vector[i] = from_io.read();
+				state_current_vector[i] = from_dma_input.read();
 			}
 			state_get_external_inputs = true;
 		}
@@ -64,7 +65,7 @@ void scheduler_module::process(void)
 					#pragma HLS pipeline II=1 enable_flush
 					for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 					{
-						npu_weight[i % CORE].write(from_weight.read());
+						npu_weight[i % CORE].write(from_dma_weight.read());
 						npu_input[i % CORE].write(state_current_vector[current_counter % state_current_vector_size]);
 					}
 				}
@@ -73,9 +74,7 @@ void scheduler_module::process(void)
 				#pragma HLS pipeline II=1 enable_flush
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++) {
 					state_current_vector[i + core_done] = npu_output[i % CORE].read();
-				}
-
-				
+				}				
 			}
         }
 

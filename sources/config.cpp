@@ -29,9 +29,6 @@ void config_module::process_drain_dma(void)
 #ifndef __SYNTHESIS__
             cout << "[config_module] @" << sc_time_stamp() << " loading network configuration (" << current_layer << ")" << endl;
 #endif
-
-            to_io.write((old_layer << 2) + activation_function);
-            to_weight.write(current_layer * old_layer);
             to_scheduler_instructions.write((old_layer << 17) + (current_layer << 2) + activation_function);
             old_layer = current_layer;
             

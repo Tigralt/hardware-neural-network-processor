@@ -3,11 +3,8 @@
 
 #include <systemc.h>
 #include "config.hpp"
-#include "weight.hpp"
-#include "io.hpp"
 #include "scheduler.hpp"
 #include "processing_engine.hpp"
-#include "switch.hpp"
 
 
 
@@ -32,13 +29,7 @@ public:
     sc_fifo_out<float> dma_output;
 
     // Internal
-    sc_fifo<unsigned int> fifo_weight_length;
-    sc_fifo<unsigned int> fifo_input_length;
     sc_fifo<unsigned int> fifo_instructions;
-    sc_fifo<float> fifo_weight;
-    sc_fifo<float> fifo_input;
-    sc_fifo<float> fifo_output;
-    sc_fifo<float> fifo_switch;
 
     sc_fifo<unsigned int> npu_instructions[CORE];
     sc_fifo<float> npu_weight[CORE];
@@ -47,13 +38,7 @@ public:
 
     // Modules
     config_module mod_config;
-    weight_module mod_weight;
-    io_module mod_io;
     scheduler_module mod_scheduler;
-
-#ifndef __SYNTHESIS__
-    switch_module mod_switch;
-#endif
 
 // Cores
 #if CORE == 8
