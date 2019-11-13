@@ -3,6 +3,14 @@ Hardware Neural Processing Unit
 
 A Hardware Neural Network Processing Unit written in SystemC
 
+## Instructions
+
+The instruction bus is 32 bits wide.
+
+| Data | Layer N length | Layer N+1 length | Activation function ID |
+|------|----------------|------------------|------------------------|
+| Bits | 15             | 15               | 2                      |
+
 ## Activation function nomenclature
 
 * 0: Linear | f(x) = x
