@@ -11,8 +11,7 @@ SC_MODULE(config_module)
     sc_fifo_in<unsigned int> from_dma;
     sc_fifo_out<unsigned int> to_weight;
     sc_fifo_out<unsigned int> to_io;
-    sc_fifo_out<unsigned int> to_scheduler_current;
-    sc_fifo_out<unsigned int> to_scheduler_next;
+    sc_fifo_out<unsigned int> to_scheduler_instructions;
 
     // PROCESS
     void process_drain_dma(void);
@@ -22,8 +21,7 @@ SC_MODULE(config_module)
         from_dma("from_dma"),
         to_weight("to_weight"),
         to_io("to_io"),
-        to_scheduler_next("to_scheduler_next"),
-        to_scheduler_current("to_scheduler_current")
+        to_scheduler_instructions("to_scheduler_instructions")
     {
         SC_CTHREAD(process_drain_dma, clk.pos());
         reset_signal_is(reset,true);

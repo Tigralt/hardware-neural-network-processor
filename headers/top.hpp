@@ -14,7 +14,7 @@
 #define CORE_BIND(NAME, INDEX)                     \
     NAME.clk(clk);                                 \
     NAME.reset(reset);                             \
-    NAME.from_scheduler_length(npu_length[INDEX]); \
+    NAME.from_scheduler_instructions(npu_instructions[INDEX]); \
     NAME.from_scheduler_weight(npu_weight[INDEX]); \
     NAME.from_scheduler_input(npu_input[INDEX]);   \
     NAME.to_scheduler(npu_output[INDEX]);
@@ -34,14 +34,13 @@ public:
     // Internal
     sc_fifo<unsigned int> fifo_weight_length;
     sc_fifo<unsigned int> fifo_input_length;
-    sc_fifo<unsigned int> fifo_current_length;
-    sc_fifo<unsigned int> fifo_next_length;
+    sc_fifo<unsigned int> fifo_instructions;
     sc_fifo<float> fifo_weight;
     sc_fifo<float> fifo_input;
     sc_fifo<float> fifo_output;
     sc_fifo<float> fifo_switch;
 
-    sc_fifo<unsigned int> npu_length[CORE];
+    sc_fifo<unsigned int> npu_instructions[CORE];
     sc_fifo<float> npu_weight[CORE];
     sc_fifo<float> npu_input[CORE];
     sc_fifo<float> npu_output[CORE];

@@ -4,8 +4,7 @@ void scheduler_module::process(void)
 {
 #pragma HLS resource core = AXI4Stream variable = from_weight
 #pragma HLS resource core = AXI4Stream variable = from_io
-#pragma HLS resource core = AXI4Stream variable = from_config_next
-#pragma HLS resource core = AXI4Stream variable = from_config_current
+#pragma HLS resource core = AXI4Stream variable = from_config_instructions
 
 #pragma HLS resource core = AXI4Stream variable = to_io
 #pragma HLS resource core = AXI4Stream variable = to_dma
@@ -23,30 +22,31 @@ void scheduler_module::process(void)
     while (true)
     {
         // Init
-        from_config_current.read(state_current_vector_size);
+		unsigned int instructions;
+        from_config_instructions.read(instructions);
+		state_current_vector_size = (instructions & 0b11111111111111100000000000000000) >> 17;
+		state_next_length = (instructions & 0b00000000000000011111111111111100) >> 2;
+		state_activation_function = instructions & 0b11;
 
-        // Process
-        for (unsigned int i = 0; i < state_current_vector_size; i++)
-        {
-            state_current_vector[i] = from_io.read();
-        }
+        if (!state_get_external_inputs) {
+			for (unsigned int i = 0; i < state_current_vector_size; i++)
+			{
+				state_current_vector[i] = from_io.read();
+			}
+			state_get_external_inputs = true;
+		}
 
 #ifndef __SYNTHESIS__
         cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_current_vector_size << ")" << endl;
-#endif
-
-        from_config_next.read(state_next_length);
-
-#ifndef __SYNTHESIS__
         cout << "[scheduler_module] @" << sc_time_stamp() << " next loaded (" << state_next_length << ")" << endl;
 #endif
 
-        do_return = (state_next_length == 0);
-        if (do_return) {
+        if (state_next_length == 0) { // End of layers
             for (unsigned int i = 0; i < state_current_vector_size; i++)
             {
                 to_dma.write(state_current_vector[i]);
             }
+			state_get_external_inputs = false;
         } else {
 			// Schedule
 			for (unsigned int core_done = 0; core_done < state_next_length; core_done += CORE)
@@ -55,7 +55,7 @@ void scheduler_module::process(void)
 				// If there is less nodes than cores, do not start unused cores
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
-					npu_length[i].write(state_current_vector_size);
+					npu_instructions[i].write((state_current_vector_size << 2) + state_activation_function);
 				}
 
 				// Send data to cores
@@ -72,9 +72,26 @@ void scheduler_module::process(void)
 				// Return output
 				#pragma HLS pipeline II=1 enable_flush
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++) {
-					to_io.write(npu_output[i % CORE].read());
+					state_current_vector[i + core_done] = npu_output[i % CORE].read();
 				}
+
+				
 			}
+        }
+
+		// Process activation function that need full output vector
+		if (state_activation_function == 3) // Softmax
+        {
+            float sum = 0;
+            for (unsigned int i = 0; i < state_next_length; i++)
+            {
+                sum += state_current_vector[i];
+            }
+
+            for (unsigned int i = 0; i < state_next_length; i++)
+            {
+                state_current_vector[i] /= sum;
+            }
         }
     }
 }

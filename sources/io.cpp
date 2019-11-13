@@ -8,26 +8,22 @@ void io_module::process(void)
 
     while (true)
     {
-        // Process
-        from_config.read(state_length);
+        // Wait for config
+        unsigned int instructions;
+        from_config.read(instructions);
+        state_length = instructions >> 2;
+        state_activation_function = instructions & 0b11;
 
 #ifndef __SYNTHESIS__
         cout << "[io_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
 #endif
-        #pragma HLS pipeline II=1 enable_flush
-        for (unsigned int i = 0; i < state_length; i++)
-        {
-            state_loop_vector[i] = inputs.read();
-        }
 
-        // Process
-        #pragma HLS pipeline II=1 enable_flush
         for (unsigned int i = 0; i < state_length; i++)
         {
-            to_scheduler.write(state_loop_vector[i]);
+            to_scheduler.write(inputs.read());
 
 #ifndef __SYNTHESIS__
-            cout << "[io_module] @" << sc_time_stamp() << " writing value " << state_loop_vector[i] << " to vector (" << i + 1 << "/" << state_length << ")" << endl;
+            cout << "[io_module] @" << sc_time_stamp() << " writing value  to vector (" << i + 1 << "/" << state_length << ")" << endl;
 #endif
         }
     }

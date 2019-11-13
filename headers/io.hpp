@@ -3,8 +3,6 @@
 
 #include <systemc.h>
 
-#define LOOP_VECTOR 32768
-
 SC_MODULE(io_module)
 {
     // PORTS
@@ -15,8 +13,7 @@ SC_MODULE(io_module)
     sc_fifo_out<float> to_scheduler;
 
     // STATES
-    unsigned int state_length;
-    float state_loop_vector[LOOP_VECTOR];
+    unsigned int state_length, state_activation_function;
 
     // PROCESS
     void process(void);
@@ -29,6 +26,7 @@ SC_MODULE(io_module)
     {
         // Init STATES
         state_length = 0;
+        state_activation_function = 0;
 
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset,true);

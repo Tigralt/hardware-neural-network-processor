@@ -32,8 +32,7 @@ top_module::top_module(sc_module_name name) : clk("clock"),
     mod_config.from_dma(dma_config);
     mod_config.to_io(fifo_input_length);
     mod_config.to_weight(fifo_weight_length);
-    mod_config.to_scheduler_current(fifo_current_length);
-    mod_config.to_scheduler_next(fifo_next_length);
+    mod_config.to_scheduler_instructions(fifo_instructions);
 
     mod_weight.clk(clk);
     mod_weight.reset(reset);
@@ -53,8 +52,7 @@ top_module::top_module(sc_module_name name) : clk("clock"),
     mod_scheduler.from_io(fifo_input);
     mod_scheduler.to_io(fifo_output);
     mod_scheduler.to_dma(dma_output);
-    mod_scheduler.from_config_current(fifo_current_length);
-    mod_scheduler.from_config_next(fifo_next_length);
+    mod_scheduler.from_config_instructions(fifo_instructions);
 
     mod_switch.clk(clk);
     mod_switch.reset(reset);
@@ -64,7 +62,7 @@ top_module::top_module(sc_module_name name) : clk("clock"),
 
     for (unsigned int i = 0; i < CORE; i++)
     {
-        mod_scheduler.npu_length[i](npu_length[i]);
+        mod_scheduler.npu_instructions[i](npu_instructions[i]);
         mod_scheduler.npu_weight[i](npu_weight[i]);
         mod_scheduler.npu_output[i](npu_output[i]);
         mod_scheduler.npu_input[i](npu_input[i]);
