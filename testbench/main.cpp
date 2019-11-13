@@ -65,11 +65,10 @@ int sc_main(int argc, char* argv[])
     dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
 #endif
 
-    dma_config.write((2 << 2)); // Input
-    dma_config.write((2 << 2) + 2); // Hidden 1
-    dma_config.write((2 << 2) + 0); // Hidden 2
-    dma_config.write((1 << 2) + 1); // Output
-    dma_config.write((0 << 2)); // End Of Layers
+    dma_config.write((2 << 17) + (2 << 2) + 2); // Input to Hidden 1
+    dma_config.write((2 << 17) + (2 << 2) + 0); // Hidden 1 to Hidden 2
+    dma_config.write((2 << 17) + (1 << 2) + 1); // Hidden 2 to Output
+    dma_config.write((1 << 17) + (0 << 2) + 0); // Output to END
 
     // Start simulation
     #ifndef __SYNTHESIS__
@@ -126,11 +125,10 @@ int sc_main(int argc, char* argv[])
     dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
 #endif
 
-    dma_config.write((2 << 2)); // Input
-    dma_config.write((2 << 2) + 2); // Hidden 1
-    dma_config.write((2 << 2) + 0); // Hidden 2
-    dma_config.write((1 << 2) + 1); // Output
-    dma_config.write((0 << 2)); // End Of Layers
+    dma_config.write((2 << 17) + (2 << 2) + 2); // Input to Hidden 1
+    dma_config.write((2 << 17) + (2 << 2) + 0); // Hidden 1 to Hidden 2
+    dma_config.write((2 << 17) + (1 << 2) + 1); // Hidden 2 to Output
+    dma_config.write((1 << 17) + (0 << 2) + 0); // Output to END
 
     // Start simulation
     #ifndef __SYNTHESIS__
@@ -165,11 +163,10 @@ int sc_main(int argc, char* argv[])
     for (unsigned int i = 0; i < 784 * 128 + 128 * 32 + 32 * 10; i++)
         dma_weight.write(((float)(i % 10)) / 10000000.0f);
 
-    dma_config.write((784 << 2)); // Input
-    dma_config.write((128 << 2) + 2); // Hidden 1
-    dma_config.write((32 << 2) + 0); // Hidden 2
-    dma_config.write((10 << 2) + 3); // Output
-    dma_config.write(0); // End Of Layers
+    dma_config.write((784 << 17) + (128 << 2) + 2); // Input to Hidden 1
+    dma_config.write((128 << 17) + (32 << 2) + 0); // Hidden 1 to Hidden 2
+    dma_config.write((32 << 17) + (10 << 2) + 3); // Hidden 2 to Output
+    dma_config.write((10 << 17) + (0 << 2) + 0); // Output to END
 
     // Start simulation
     #ifndef __SYNTHESIS__
