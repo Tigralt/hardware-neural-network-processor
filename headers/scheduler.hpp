@@ -25,7 +25,6 @@ SC_MODULE(scheduler_module)
     // STATES
     sc_uint<15> state_current_length, state_next_length;
     sc_uint<2> state_activation_function;
-    bool state_get_external_inputs;
     float state_current_vector[INPUT_VECTOR];
 
     // PROCESS
@@ -37,7 +36,6 @@ SC_MODULE(scheduler_module)
         state_current_length = 0;
         state_next_length = 0;
         state_activation_function = 0;
-        state_get_external_inputs = false;
 
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset, true);
