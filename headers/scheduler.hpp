@@ -4,7 +4,8 @@
 #include <systemc.h>
 
 #define CORE 4
-#define INPUT_VECTOR 32768
+#define INSTRUCTION_BUFFER 512
+#define INPUT_BUFFER 32768
 
 SC_MODULE(scheduler_module)
 {
@@ -17,15 +18,15 @@ SC_MODULE(scheduler_module)
     sc_fifo_out<float> to_dma;
 
     // PROCESSING ENGINES
-    sc_fifo_out<sc_uint<17>> npu_instructions[CORE];
+    sc_fifo_out< sc_uint<17> > npu_instructions[CORE];
     sc_fifo_out<float> npu_weight[CORE];
     sc_fifo_out<float> npu_input[CORE];
     sc_fifo_in<float> npu_output[CORE];
 
     // STATES
-    sc_uint<15> state_current_length, state_next_length;
-    sc_uint<2> state_activation_function;
-    float state_current_vector[INPUT_VECTOR];
+    unsigned int state_instruction_counter;
+    unsigned int state_instruction_buffer[INSTRUCTION_BUFFER];
+    float state_input_buffer[INPUT_BUFFER];
 
     // PROCESS
     void process(void);
@@ -33,9 +34,7 @@ SC_MODULE(scheduler_module)
     SC_CTOR(scheduler_module)
     {
         // Init STATES
-        state_current_length = 0;
-        state_next_length = 0;
-        state_activation_function = 0;
+        state_instruction_counter = 0;
 
         SC_CTHREAD(process, clk.pos());
         reset_signal_is(reset, true);

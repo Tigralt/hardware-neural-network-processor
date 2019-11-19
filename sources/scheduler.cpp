@@ -17,64 +17,63 @@ void scheduler_module::process(void)
 #pragma HLS resource core = AXI4Stream variable = npu_input
 #pragma HLS resource core = AXI4Stream variable = npu_output
 
+	sc_uint<15> instruction_input_layer, instruction_output_layer;
+
 	while (true)
 	{
-		state_current_vector[0] = from_dma_input.read(); // To be sure to wait for inputs
-		for (unsigned int i = 1; from_dma_input.num_available(); i++)
+		// Load instructions
+		from_dma_instructions.read(state_instruction_counter);
+		for (unsigned int i = 0; i < state_instruction_counter; i++)
 		{
-			state_current_vector[i] = from_dma_input.read();
+			state_instruction_buffer[i] = from_dma_instructions.read();
+		}
+		instruction_input_layer = (state_instruction_buffer[0] & 0b11111111111111100000000000000000) >> 17;
+		instruction_output_layer = (state_instruction_buffer[state_instruction_counter - 1] & 0b00000000000000011111111111111100) >> 2;
+
+		// Load inputs
+		for (unsigned int i = 0; i < instruction_input_layer; i++)
+		{
+			state_input_buffer[i] = from_dma_input.read();
 		}
 
-		do
+		// Process neural network
+		for (unsigned int instruction_index = 0; instruction_index < state_instruction_counter; instruction_index++)
 		{
-			// Get instructions
-			unsigned int instructions;
-			from_dma_instructions.read(instructions);
-			state_current_length = (instructions & 0b11111111111111100000000000000000) >> 17;
-			state_next_length = (instructions & 0b00000000000000011111111111111100) >> 2;
-			state_activation_function = instructions & 0b11;
+			sc_uint<15> state_current_length = (state_instruction_buffer[instruction_index] & 0b11111111111111100000000000000000) >> 17;
+			sc_uint<15> state_next_length = (state_instruction_buffer[instruction_index] & 0b00000000000000011111111111111100) >> 2;
+			sc_uint<2>  state_activation_function = state_instruction_buffer[instruction_index] & 0b11;
 
 #ifndef __SYNTHESIS__
 			cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_current_length << ")" << endl;
 			cout << "[scheduler_module] @" << sc_time_stamp() << " next loaded (" << state_next_length << ")" << endl;
 #endif
 
-			if (state_next_length == 0) // End of layers
+			// Schedule
+			for (unsigned int core_done = 0; core_done < state_next_length; core_done += CORE)
 			{
-				for (unsigned int i = 0; i < state_current_length; i++)
+				// Load cores
+				// If there is less nodes than cores, do not start unused cores
+				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
-					to_dma.write(state_current_vector[i]);
+					npu_instructions[i].write((state_current_length << 2) + state_activation_function);
 				}
-			}
-			else
-			{
-				// Schedule
-				for (unsigned int core_done = 0; core_done < state_next_length; core_done += CORE)
+
+				// Send data to cores
+				for (unsigned int current_counter = 0; current_counter < state_current_length; current_counter++)
 				{
-					// Load cores
-					// If there is less nodes than cores, do not start unused cores
-					for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
-					{
-						npu_instructions[i].write((state_current_length << 2) + state_activation_function);
-					}
-
-					// Send data to cores
-					for (unsigned int current_counter = 0; current_counter < state_current_length; current_counter++)
-					{
-						#pragma HLS pipeline II = 1 enable_flush
-						for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
-						{
-							npu_weight[i % CORE].write(from_dma_weight.read());
-							npu_input[i % CORE].write(state_current_vector[current_counter % state_current_length]);
-						}
-					}
-
-					// Return output
 					#pragma HLS pipeline II = 1 enable_flush
 					for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 					{
-						state_current_vector[i + core_done] = npu_output[i % CORE].read();
+						npu_weight[i % CORE].write(from_dma_weight.read());
+						npu_input[i % CORE].write(state_input_buffer[current_counter % state_current_length]);
 					}
+				}
+
+				// Return output
+				#pragma HLS pipeline II = 1 enable_flush
+				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
+				{
+					state_input_buffer[i + core_done] = npu_output[i % CORE].read();
 				}
 			}
 
@@ -84,14 +83,19 @@ void scheduler_module::process(void)
 				float sum = 0;
 				for (unsigned int i = 0; i < state_next_length; i++)
 				{
-					sum += state_current_vector[i];
+					sum += state_input_buffer[i];
 				}
 
 				for (unsigned int i = 0; i < state_next_length; i++)
 				{
-					state_current_vector[i] /= sum;
+					state_input_buffer[i] /= sum;
 				}
 			}
-		} while (state_next_length != 0);
+		}
+
+		for (unsigned int i = 0; i < instruction_output_layer; i++)
+		{
+			to_dma.write(state_input_buffer[i]);
+		}
 	}
 }
