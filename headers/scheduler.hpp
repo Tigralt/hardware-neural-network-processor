@@ -27,6 +27,7 @@ SC_MODULE(scheduler_module)
     unsigned int state_instruction_counter;
     unsigned int state_instruction_buffer[INSTRUCTION_BUFFER];
     float state_input_buffer[INPUT_BUFFER];
+    float state_output_buffer[INPUT_BUFFER];
 
     // PROCESS
     void process(void);

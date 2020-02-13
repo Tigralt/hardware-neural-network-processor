@@ -73,7 +73,7 @@ void scheduler_module::process(void)
 				#pragma HLS pipeline II = 1 enable_flush
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
-					state_input_buffer[i + core_done] = npu_output[i % CORE].read();
+					state_output_buffer[i + core_done] = npu_output[i % CORE].read();
 				}
 			}
 
@@ -83,13 +83,18 @@ void scheduler_module::process(void)
 				float sum = 0;
 				for (unsigned int i = 0; i < state_next_length; i++)
 				{
-					sum += state_input_buffer[i];
+					sum += state_output_buffer[i];
 				}
 
 				for (unsigned int i = 0; i < state_next_length; i++)
 				{
-					state_input_buffer[i] /= sum;
+					state_output_buffer[i] /= sum;
 				}
+			}
+
+			for (unsigned int i = 0; i < instruction_output_layer; i++)
+			{
+				state_input_buffer[i] = state_output_buffer[i];
 			}
 		}
 
