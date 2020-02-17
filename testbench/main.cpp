@@ -1,19 +1,24 @@
 #include <systemc.h>
+#include <cnpy.h> // https://github.com/rogersce/cnpy
 #include "../headers/top.hpp"
 
-void system_pause() {
+void system_pause()
+{
     std::cout << "Press enter to continue ...";
     std::cin.get();
 }
 
-int sc_main(int argc, char* argv[])
+int sc_main(int argc, char *argv[])
 {
-    float o;
+    // Load numpy data
+    cnpy::npz_t mnist_layers = cnpy::npz_load("./nn_arch/mnist/layers/mnist.npz");
+    cnpy::npz_t mnist_dataset = cnpy::npz_load("./nn_arch/mnist/dataset/mnist.npz");
 
+    // Init SystemC system
     sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
 
     sc_set_time_resolution(100.0, SC_PS);
-    sc_clock clk("clk_0",1.0,SC_NS);
+    sc_clock clk("clk_0", 1.0, SC_NS);
     sc_signal<bool> reset;
 
     sc_fifo<unsigned int> dma_config(128);
@@ -29,162 +34,88 @@ int sc_main(int argc, char* argv[])
     mod_top.dma_input(dma_input);
     mod_top.dma_output(dma_output);
 
+    ////////////////////
+    //   SIMULATION   //
+    ////////////////////
+    float *input = mnist_dataset["x"].data<float>();
+    char *output = mnist_dataset["y"].data<char>();
+    size_t correct_classification = 0;
+    std::vector<float> results;
+    float o;
 
-    ///////////////////
-    // SIMULATION #1 //
-    ///////////////////
+    for (size_t n = 0; n < mnist_dataset["x"].shape[0]; n++)
+    {
+        // Instructions
+        dma_config.write(3);
+        dma_config.write((mnist_layers["layer_0"].shape[0] << 17) + (mnist_layers["layer_0"].shape[1] << 2) + 2); // Relu
+        dma_config.write((mnist_layers["layer_1"].shape[0] << 17) + (mnist_layers["layer_1"].shape[1] << 2) + 0); // Linear
+        dma_config.write((mnist_layers["layer_2"].shape[0] << 17) + (mnist_layers["layer_2"].shape[1] << 2) + 3); // Softmax
 
-
-    // Init DMA
-    dma_input.write(0.0f);
-    dma_input.write(0.0f);
-
-#if CORE == 8 || CORE == 4 || CORE == 2
-    dma_weight.write(-1.347858071327209473e+00);
-    dma_weight.write(1.556262016296386719e+00);
-    dma_weight.write(1.326483130455017090e+00);
-    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
-    dma_weight.write(-2.849910736083984375e+00);
-    dma_weight.write(-2.041214227676391602e+00);
-    dma_weight.write(-2.712538480758666992e+00);
-    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
-    dma_weight.write(-2.038681268692016602e+00);
-    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
-#endif
-
-#if CORE == 1
-    dma_weight.write(-1.347858071327209473e+00);
-    dma_weight.write(1.326483130455017090e+00);
-    dma_weight.write(1.556262016296386719e+00);
-    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
-    dma_weight.write(-2.849910736083984375e+00);
-    dma_weight.write(-2.712538480758666992e+00);
-    dma_weight.write(-2.041214227676391602e+00);
-    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
-    dma_weight.write(-2.038681268692016602e+00);
-    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
-#endif
-
-    dma_config.write(3); // Set number of instructions
-    dma_config.write((2 << 17) + (2 << 2) + 2); // Input to Hidden 1
-    dma_config.write((2 << 17) + (2 << 2) + 0); // Hidden 1 to Hidden 2
-    dma_config.write((2 << 17) + (1 << 2) + 1); // Hidden 2 to Output
-
-    // Start simulation
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Start simulation #1" << endl;
-    #endif
-
-    sc_start(100, SC_NS);
-
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Terminating simulation #1" << endl;
-    #endif
-
-    #ifndef __SYNTHESIS__
-        cout << endl << "=== Result ===" << endl;
-        while(dma_output.nb_read(o)) {
-            cout  << o << endl;
+        // Weights
+        size_t core = CORE;
+        for (cnpy::npz_t::iterator it = mnist_layers.begin(); it != mnist_layers.end(); it++)
+        {
+            float *data = it->second.data<float>();
+            for (size_t offset = 0; offset < it->second.shape[1]; offset += CORE)
+            {
+                size_t range = std::min(std::min(core, it->second.shape[1]), it->second.shape[1] - offset);
+                for (size_t node = 0; node < it->second.shape[0]; node++)
+                {
+                    for (size_t i = 0; i < range; i++)
+                    {
+                        dma_weight.write(data[node * it->second.shape[1] + offset + i]);
+                    }
+                }
+            }
         }
-        cout << "======================" << endl << endl;
+
+        // Inputs
+        for (size_t i = 0; i < mnist_dataset["x"].shape[1]; i++)
+        {
+            dma_input.write(input[n * mnist_dataset["x"].shape[1] + i]);
+        }
+
+// Start simulation
+#if VERBOSITY_LEVEL >= 1
+        cout << "@" << sc_time_stamp() << " Start simulation #" << (n + 1) << endl;
+#endif
+
+        sc_start(100000, SC_NS);
+
+#if VERBOSITY_LEVEL >= 1
+        cout << "@" << sc_time_stamp() << " Terminating simulation #" << (n + 1) << endl;
+#endif
+
+        // Determine accuracy
+        while (dma_output.nb_read(o))
+        {
+            results.push_back(o);
+        }
+        int maxElementIndex = std::max_element(results.begin(),results.end()) - results.begin();
+        if (maxElementIndex == (int) output[n])
+            correct_classification++;
+
+#if VERBOSITY_LEVEL >= 2
+        cout << "=== Result ===" << endl;
+        for (std::vector<float>::iterator it = results.begin(); it != results.end(); it++)
+        {
+            cout << *it << endl;
+        }
+        cout << "======================" << endl;
+
+        if (maxElementIndex == (int) output[n]) {
+            cout << "Classification is correct: found (#" << (int)output[n] << ")" << endl;
+        } else {
+            cout << "Classification is incorrect: found (#" << maxElementIndex << ") instead of (#" << (int)output[n] << ")" << endl;
+        }
+        cout << "Class should be: #" << (int)output[n] << endl;
         system_pause();
-    #endif
-
-    ///////////////////
-    // SIMULATION #2 //
-    ///////////////////
-
-
-    // Init DMA
-    dma_input.write(1.0f);
-    dma_input.write(0.0f);
-
-#if CORE == 8 || CORE == 4 || CORE == 2
-    dma_weight.write(-1.347858071327209473e+00);
-    dma_weight.write(1.556262016296386719e+00);
-    dma_weight.write(1.326483130455017090e+00);
-    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
-    dma_weight.write(-2.849910736083984375e+00);
-    dma_weight.write(-2.041214227676391602e+00);
-    dma_weight.write(-2.712538480758666992e+00);
-    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
-    dma_weight.write(-2.038681268692016602e+00);
-    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
 #endif
 
-#if CORE == 1
-    dma_weight.write(-1.347858071327209473e+00);
-    dma_weight.write(1.326483130455017090e+00);
-    dma_weight.write(1.556262016296386719e+00);
-    dma_weight.write(-1.615458250045776367e+00); // END LAYER 1
-    dma_weight.write(-2.849910736083984375e+00);
-    dma_weight.write(-2.712538480758666992e+00);
-    dma_weight.write(-2.041214227676391602e+00);
-    dma_weight.write(-9.970329403877258301e-01); // END LAYER 2
-    dma_weight.write(-2.038681268692016602e+00);
-    dma_weight.write(-1.361018419265747070e+00);  // END LAYER OUTPUT
-#endif
+        results.clear();
+    }
 
-    dma_config.write(3); // Set number of instructions
-    dma_config.write((2 << 17) + (2 << 2) + 2); // Input to Hidden 1
-    dma_config.write((2 << 17) + (2 << 2) + 0); // Hidden 1 to Hidden 2
-    dma_config.write((2 << 17) + (1 << 2) + 1); // Hidden 2 to Output
-
-    // Start simulation
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Start simulation #1" << endl;
-    #endif
-
-    sc_start(100, SC_NS);
-
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Terminating simulation #1" << endl;
-    #endif
-
-    #ifndef __SYNTHESIS__
-        cout << endl << "=== Result ===" << endl;
-        while(dma_output.nb_read(o)) {
-            cout  << o << endl;
-        }
-        cout << "======================" << endl << endl;
-        system_pause();
-    #endif
-
-
-    ///////////////////
-    // SIMULATION #3 //
-    ///////////////////
-
-    // Input
-    for (unsigned int i = 0; i < 784; i++)
-        dma_input.write(((float)((i+1) % 10)) / 10000000.0f);
-
-    // Weights
-    for (unsigned int i = 0; i < 784 * 128 + 128 * 32 + 32 * 10; i++)
-        dma_weight.write(((float)(i % 10)) / 10000000.0f);
-
-    dma_config.write(3); // Set number of instructions
-    dma_config.write((784 << 17) + (128 << 2) + 2); // Input to Hidden 1
-    dma_config.write((128 << 17) + (32 << 2) + 0); // Hidden 1 to Hidden 2
-    dma_config.write((32 << 17) + (10 << 2) + 3); // Hidden 2 to Output
-
-    // Start simulation
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Start simulation #3" << endl;
-    #endif
-
-    sc_start(100000, SC_NS);
-
-    #ifndef __SYNTHESIS__
-        cout << "@" << sc_time_stamp() << " Terminating simulation #3" << endl;
-    #endif
-
-    #ifndef __SYNTHESIS__
-        cout << endl << "=== Result ===" << endl;
-        while(dma_output.nb_read(o)) {
-            cout << o << endl;
-        }
-    #endif
+    cout << "Accuracy: " << (float) correct_classification / (float) mnist_dataset["x"].shape[0] << endl;
 
     return 0;
 }

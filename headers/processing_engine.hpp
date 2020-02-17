@@ -2,6 +2,7 @@
 #define PROCESSING_ENGINE_HPP
 
 #include <systemc.h>
+#include "verbose.hpp"
 
 SC_MODULE(processing_engine_module)
 {

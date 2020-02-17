@@ -4,8 +4,7 @@
 #include <systemc.h>
 #include "scheduler.hpp"
 #include "processing_engine.hpp"
-
-
+#include "verbose.hpp"
 
 #define CORE_BIND(NAME, INDEX)                     \
     NAME.clk(clk);                                 \

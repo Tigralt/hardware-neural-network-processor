@@ -44,8 +44,10 @@ void scheduler_module::process(void)
 			sc_uint<2>  state_activation_function = state_instruction_buffer[instruction_index] & 0b11;
 
 #ifndef __SYNTHESIS__
+#if VERBOSITY_LEVEL >= 2
 			cout << "[scheduler_module] @" << sc_time_stamp() << " inputs loaded (" << state_current_length << ")" << endl;
 			cout << "[scheduler_module] @" << sc_time_stamp() << " next loaded (" << state_next_length << ")" << endl;
+#endif
 #endif
 
 			// Schedule

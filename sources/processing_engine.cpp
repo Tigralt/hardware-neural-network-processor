@@ -19,7 +19,9 @@ void processing_engine_module::process(void)
         state_activation_function = instructions & 0b11;
 
 #ifndef __SYNTHESIS__
+#if VERBOSITY_LEVEL >= 2
         cout << "[processing_engine_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
+#endif
 #endif
 
 // Process
@@ -47,7 +49,9 @@ void processing_engine_module::process(void)
         to_scheduler.write(output);
 
 #ifndef __SYNTHESIS__
+#if VERBOSITY_LEVEL >= 2
         cout << "[processing_engine_module] @" << sc_time_stamp() << " returning result (" << output << ")" << endl;
+#endif
 #endif
     }
 }
@@ -59,7 +63,7 @@ float processing_engine_module::sigmoid(float input)
 
 float processing_engine_module::relu(float input)
 {
-    return input < 0.f? 0.f: input;
+    return input < 0.f ? 0.f : input;
 }
 
 float processing_engine_module::softmax(float input)

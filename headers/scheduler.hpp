@@ -2,6 +2,7 @@
 #define SCHEDULER_HPP
 
 #include <systemc.h>
+#include "verbose.hpp"
 
 #define CORE 4
 #define INSTRUCTION_BUFFER 512
