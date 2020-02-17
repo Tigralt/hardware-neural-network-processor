@@ -97,13 +97,24 @@ void scheduler_module::process(void)
 			for (unsigned int i = 0; i < state_next_length; i++)
 			{
 				state_input_buffer[i] = state_output_buffer[i];
-				cout << "[scheduler_module] @" << sc_time_stamp() << " swap: " << state_input_buffer[i] << endl;
 			}
 		}
 
 		for (unsigned int i = 0; i < instruction_output_layer; i++)
 		{
 			to_dma.write(state_input_buffer[i]);
+
+			// This is for Vivado for the DMA IP
+			// if (i < (instruction_output_layer - 1))
+			// 	to_dma_TLAST.write(0);
+			// else {
+			// 	to_dma_TLAST.write(1);
+			// 	wait();
+			// }
 		}
+
+		// This is for Vivado for the DMA IP
+		// wait();
+		// to_dma_TLAST.write(0);
 	}
 }

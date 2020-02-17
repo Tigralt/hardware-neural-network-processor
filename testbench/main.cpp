@@ -12,8 +12,8 @@ void system_pause()
 int sc_main(int argc, char *argv[])
 {
     // Load numpy data
-    cnpy::npz_t layers = cnpy::npz_load("./models/xor/layers.npz");
-    cnpy::npz_t dataset = cnpy::npz_load("./models/xor/dataset.npz");
+    cnpy::npz_t layers = cnpy::npz_load("./models/mnist/layers.npz");
+    cnpy::npz_t dataset = cnpy::npz_load("./models/mnist/dataset.npz");
 
     // Init SystemC system
     sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
@@ -22,7 +22,7 @@ int sc_main(int argc, char *argv[])
     sc_clock clk("clk_0", 1.0, SC_NS);
     sc_signal<bool> reset;
 
-    sc_fifo<unsigned int> dma_config(128);
+    sc_fifo< sc_uint<32> > dma_config(128);
     sc_fifo<float> dma_weight(131072);
     sc_fifo<float> dma_input(2048);
     sc_fifo<float> dma_output(2048);
@@ -91,10 +91,8 @@ int sc_main(int argc, char *argv[])
         // Inputs
         for (size_t i = 0; i < dataset["x"].shape[1]; i++)
         {
-            cout << input[n * dataset["x"].shape[1] + i] << endl;
             dma_input.write(input[n * dataset["x"].shape[1] + i]);
         }
-        system_pause();
 
 // Start simulation
 #if VERBOSITY_LEVEL >= 1

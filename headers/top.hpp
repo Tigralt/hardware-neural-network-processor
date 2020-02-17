@@ -21,7 +21,7 @@ public:
     sc_in<bool> reset;
 
     // IO
-    sc_fifo_in<unsigned int> dma_config;
+    sc_fifo_in< sc_uint<32> > dma_config;
     sc_fifo_in<float> dma_weight;
     sc_fifo_in<float> dma_input;
     sc_fifo_out<float> dma_output;
