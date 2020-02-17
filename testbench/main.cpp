@@ -1,5 +1,6 @@
 #include <systemc.h>
 #include <cnpy.h> // https://github.com/rogersce/cnpy
+#include <regex>
 #include "../headers/top.hpp"
 
 void system_pause()
@@ -11,8 +12,8 @@ void system_pause()
 int sc_main(int argc, char *argv[])
 {
     // Load numpy data
-    cnpy::npz_t mnist_layers = cnpy::npz_load("./nn_arch/mnist/layers/mnist.npz");
-    cnpy::npz_t mnist_dataset = cnpy::npz_load("./nn_arch/mnist/dataset/mnist.npz");
+    cnpy::npz_t layers = cnpy::npz_load("./models/xor/layers.npz");
+    cnpy::npz_t dataset = cnpy::npz_load("./models/xor/dataset.npz");
 
     // Init SystemC system
     sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
@@ -37,24 +38,42 @@ int sc_main(int argc, char *argv[])
     ////////////////////
     //   SIMULATION   //
     ////////////////////
-    float *input = mnist_dataset["x"].data<float>();
-    char *output = mnist_dataset["y"].data<char>();
+    float *input = dataset["x"].data<float>();
+    char *output = dataset["y"].data<char>();
     size_t correct_classification = 0;
     std::vector<float> results;
     float o;
 
-    for (size_t n = 0; n < mnist_dataset["x"].shape[0]; n++)
+    for (size_t n = 0; n < dataset["x"].shape[0]; n++)
     {
-        // Instructions
-        dma_config.write(3);
-        dma_config.write((mnist_layers["layer_0"].shape[0] << 17) + (mnist_layers["layer_0"].shape[1] << 2) + 2); // Relu
-        dma_config.write((mnist_layers["layer_1"].shape[0] << 17) + (mnist_layers["layer_1"].shape[1] << 2) + 0); // Linear
-        dma_config.write((mnist_layers["layer_2"].shape[0] << 17) + (mnist_layers["layer_2"].shape[1] << 2) + 3); // Softmax
+        // Instructions number
+        dma_config.write(layers.size());
 
-        // Weights
+        // Load weights and instructions
         size_t core = CORE;
-        for (cnpy::npz_t::iterator it = mnist_layers.begin(); it != mnist_layers.end(); it++)
+        for (cnpy::npz_t::iterator it = layers.begin(); it != layers.end(); it++)
         {
+            // Instructions
+            std::regex re("a\\d\\_([a-z]+)\\_\\d");
+            std::smatch match;
+            std::regex_search(it->first, match, re);
+            std::string result = match.str(1);
+            unsigned int activation = 0;
+            if (result == "sigmoid")
+            {
+                activation = 1;
+            }
+            else if (result == "relu")
+            {
+                activation = 2;
+            }
+            else if (result == "softmax")
+            {
+                activation = 3;
+            }
+            dma_config.write((it->second.shape[0] << 17) + (it->second.shape[1] << 2) + activation);
+
+            // Weights
             float *data = it->second.data<float>();
             for (size_t offset = 0; offset < it->second.shape[1]; offset += CORE)
             {
@@ -70,10 +89,12 @@ int sc_main(int argc, char *argv[])
         }
 
         // Inputs
-        for (size_t i = 0; i < mnist_dataset["x"].shape[1]; i++)
+        for (size_t i = 0; i < dataset["x"].shape[1]; i++)
         {
-            dma_input.write(input[n * mnist_dataset["x"].shape[1] + i]);
+            cout << input[n * dataset["x"].shape[1] + i] << endl;
+            dma_input.write(input[n * dataset["x"].shape[1] + i]);
         }
+        system_pause();
 
 // Start simulation
 #if VERBOSITY_LEVEL >= 1
@@ -91,8 +112,8 @@ int sc_main(int argc, char *argv[])
         {
             results.push_back(o);
         }
-        int maxElementIndex = std::max_element(results.begin(),results.end()) - results.begin();
-        if (maxElementIndex == (int) output[n])
+        int maxElementIndex = std::max_element(results.begin(), results.end()) - results.begin();
+        if (maxElementIndex == (int)output[n])
             correct_classification++;
 
 #if VERBOSITY_LEVEL >= 2
@@ -103,19 +124,21 @@ int sc_main(int argc, char *argv[])
         }
         cout << "======================" << endl;
 
-        if (maxElementIndex == (int) output[n]) {
+        if (maxElementIndex == (int)output[n])
+        {
             cout << "Classification is correct: found (#" << (int)output[n] << ")" << endl;
-        } else {
+        }
+        else
+        {
             cout << "Classification is incorrect: found (#" << maxElementIndex << ") instead of (#" << (int)output[n] << ")" << endl;
         }
-        cout << "Class should be: #" << (int)output[n] << endl;
         system_pause();
 #endif
 
         results.clear();
     }
 
-    cout << "Accuracy: " << (float) correct_classification / (float) mnist_dataset["x"].shape[0] << endl;
+    cout << "Accuracy: " << (float)correct_classification / (float)dataset["x"].shape[0] << endl;
 
     return 0;
 }

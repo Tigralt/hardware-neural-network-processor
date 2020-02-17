@@ -41,7 +41,7 @@ void scheduler_module::process(void)
 		{
 			sc_uint<15> state_current_length = (state_instruction_buffer[instruction_index] & 0b11111111111111100000000000000000) >> 17;
 			sc_uint<15> state_next_length = (state_instruction_buffer[instruction_index] & 0b00000000000000011111111111111100) >> 2;
-			sc_uint<2>  state_activation_function = state_instruction_buffer[instruction_index] & 0b11;
+			sc_uint<2> state_activation_function = state_instruction_buffer[instruction_index] & 0b11;
 
 #ifndef __SYNTHESIS__
 #if VERBOSITY_LEVEL >= 2
@@ -63,7 +63,7 @@ void scheduler_module::process(void)
 				// Send data to cores
 				for (unsigned int current_counter = 0; current_counter < state_current_length; current_counter++)
 				{
-					#pragma HLS pipeline II = 1 enable_flush
+#pragma HLS pipeline II = 1 enable_flush
 					for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 					{
 						npu_weight[i % CORE].write(from_dma_weight.read());
@@ -71,8 +71,8 @@ void scheduler_module::process(void)
 					}
 				}
 
-				// Return output
-				#pragma HLS pipeline II = 1 enable_flush
+// Return output
+#pragma HLS pipeline II = 1 enable_flush
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
 					state_output_buffer[i + core_done] = npu_output[i % CORE].read();
@@ -94,9 +94,10 @@ void scheduler_module::process(void)
 				}
 			}
 
-			for (unsigned int i = 0; i < instruction_output_layer; i++)
+			for (unsigned int i = 0; i < state_next_length; i++)
 			{
 				state_input_buffer[i] = state_output_buffer[i];
+				cout << "[scheduler_module] @" << sc_time_stamp() << " swap: " << state_input_buffer[i] << endl;
 			}
 		}
 

@@ -26,7 +26,7 @@ SC_MODULE(scheduler_module)
 
     // STATES
     unsigned int state_instruction_counter;
-    unsigned int state_instruction_buffer[INSTRUCTION_BUFFER];
+    sc_uint<32> state_instruction_buffer[INSTRUCTION_BUFFER];
     float state_input_buffer[INPUT_BUFFER];
     float state_output_buffer[INPUT_BUFFER];
 

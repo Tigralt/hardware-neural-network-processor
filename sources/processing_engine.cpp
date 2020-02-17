@@ -30,6 +30,7 @@ void processing_engine_module::process(void)
         {
             from_scheduler_input.read(input);
             from_scheduler_weight.read(weight);
+            cout << "[processing_engine_module] @" << sc_time_stamp() << " receiving " << input << " & " << weight << endl;
             output += weight * input;
         }
 
