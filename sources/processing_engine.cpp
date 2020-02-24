@@ -20,7 +20,7 @@ void processing_engine_module::process(void)
 
 #ifndef __SYNTHESIS__
 #if VERBOSITY_LEVEL >= 2
-        cout << "[processing_engine_module] @" << sc_time_stamp() << " loading length (" << state_length << ")" << endl;
+        cout << "[processing_engine_module] @" << sc_time_stamp() << " loading length (" << state_length << ") and activation (#" << state_activation_function << ")" << endl;
 #endif
 #endif
 

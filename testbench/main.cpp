@@ -2,6 +2,7 @@
 #include <cnpy.h> // https://github.com/rogersce/cnpy
 #include <regex>
 #include "../headers/top.hpp"
+#include "lib/tqdm.hpp"
 
 void system_pause()
 {
@@ -11,9 +12,12 @@ void system_pause()
 
 int sc_main(int argc, char *argv[])
 {
+    // Progress bar
+    tqdm bar;
+
     // Load numpy data
-    cnpy::npz_t layers = cnpy::npz_load("./models/mnist/layers.npz");
-    cnpy::npz_t dataset = cnpy::npz_load("./models/mnist/dataset.npz");
+    cnpy::npz_t layers = cnpy::npz_load("./models/cifar100/layers.npz");
+    cnpy::npz_t dataset = cnpy::npz_load("./models/cifar100/dataset.npz");
 
     // Init SystemC system
     sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
@@ -22,10 +26,10 @@ int sc_main(int argc, char *argv[])
     sc_clock clk("clk_0", 1.0, SC_NS);
     sc_signal<bool> reset;
 
-    sc_fifo< sc_uint<32> > dma_config(128);
-    sc_fifo<float> dma_weight(131072);
-    sc_fifo<float> dma_input(2048);
-    sc_fifo<float> dma_output(2048);
+    sc_fifo<sc_uint<32>> dma_config(512);
+    sc_fifo<float> dma_weight(8388608);
+    sc_fifo<float> dma_input(32768);
+    sc_fifo<float> dma_output(32768);
 
     top_module mod_top("top");
     mod_top.clk(clk);
@@ -46,6 +50,10 @@ int sc_main(int argc, char *argv[])
 
     for (size_t n = 0; n < dataset["x"].shape[0]; n++)
     {
+#if VERBOSITY_LEVEL == 0
+        bar.progress(n, dataset["x"].shape[0]);
+#endif
+
         // Instructions number
         dma_config.write(layers.size());
 
@@ -54,7 +62,7 @@ int sc_main(int argc, char *argv[])
         for (cnpy::npz_t::iterator it = layers.begin(); it != layers.end(); it++)
         {
             // Instructions
-            std::regex re("a\\d\\_([a-z]+)\\_\\d");
+            std::regex re("a\\d+\\_([a-z]+)\\_\\d+");
             std::smatch match;
             std::regex_search(it->first, match, re);
             std::string result = match.str(1);
@@ -136,7 +144,11 @@ int sc_main(int argc, char *argv[])
         results.clear();
     }
 
-    cout << "Accuracy: " << (float)correct_classification / (float)dataset["x"].shape[0] << endl;
+#if VERBOSITY_LEVEL == 0
+    bar.finish();
+#endif
+
+    cout << "Accuracy: " << (float)correct_classification / (float)dataset["x"].shape[0] * 100 << "%" << endl;
 
     return 0;
 }
