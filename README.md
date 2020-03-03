@@ -1,7 +1,7 @@
-Hardware Neural Processing Unit
+Hardware Neural Network Processor
 ===
 
-A Hardware Neural Network Processing Unit written in SystemC
+A Hardware Neural Network Processor written in SystemC
 
 ## Instructions
 
@@ -22,3 +22,4 @@ The instruction bus is 32 bits wide.
 
 ## External libraries
 CNPY: https://github.com/rogersce/cnpy
+TQDM: https://github.com/aminnj/cpptqdm
