@@ -5,11 +5,11 @@ A Hardware Neural Network Processor written in SystemC
 
 ## Instructions
 
-The instruction bus is 34 bits wide.
+The instruction bus is 64 bits wide.
 
 | Data | Layer N length | Layer N+1 length | Activation function ID |
 |------|----------------|------------------|------------------------|
-| Bits | 16             | 16               | 2                      |
+| Bits | 30             | 30               | 4                      |
 
 ## Activation function nomenclature
 
