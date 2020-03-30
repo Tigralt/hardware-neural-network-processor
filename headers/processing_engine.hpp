@@ -11,12 +11,12 @@ SC_MODULE(processing_engine_module)
     sc_in<bool> reset;
     sc_fifo_in<float> from_scheduler_weight;
     sc_fifo_in<float> from_scheduler_input;
-    sc_fifo_in< sc_uint<17> > from_scheduler_instructions;
+    sc_fifo_in< sc_uint<34> > from_scheduler_instructions;
     sc_fifo_out<float> to_scheduler;
 
     // STATES
-    sc_uint<15> state_length;
-    sc_uint<2> state_activation_function;
+    sc_uint<30> state_length;
+    sc_uint<4> state_activation_function;
 
     // PROCESS
     void process(void);

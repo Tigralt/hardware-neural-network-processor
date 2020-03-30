@@ -16,8 +16,8 @@ int sc_main(int argc, char *argv[])
     tqdm bar;
 
     // Load numpy data
-    cnpy::npz_t layers = cnpy::npz_load("./models/mnist/layers.npz");
-    cnpy::npz_t dataset = cnpy::npz_load("./models/mnist/dataset.npz");
+    cnpy::npz_t layers = cnpy::npz_load("./models/suod/layers.npz");
+    cnpy::npz_t dataset = cnpy::npz_load("./models/suod/dataset.npz");
 
     // Init SystemC system
     sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
@@ -26,10 +26,10 @@ int sc_main(int argc, char *argv[])
     sc_clock clk("clk_0", 1.0, SC_NS);
     sc_signal<bool> reset;
 
-    sc_fifo<sc_uint<32>> dma_config(512);
+    sc_fifo<sc_uint<64>> dma_config(512);
     sc_fifo<float> dma_weight(8388608);
-    sc_fifo<float> dma_input(32768);
-    sc_fifo<float> dma_output(32768);
+    sc_fifo<float> dma_input(INPUT_BUFFER);
+    sc_fifo<float> dma_output(INPUT_BUFFER);
 
     top_module mod_top("top");
     mod_top.clk(clk);
@@ -79,7 +79,11 @@ int sc_main(int argc, char *argv[])
             {
                 activation = 3;
             }
-            dma_config.write((it->second.shape[0] << 17) + (it->second.shape[1] << 2) + activation);
+            sc_uint<64> layer_input_shape = it->second.shape[0];
+            sc_uint<64> layer_output_shape = it->second.shape[1];
+            sc_uint<64> activation_cast = activation;
+            sc_uint<64> instruction = (layer_input_shape << 34) + (layer_output_shape << 4) + activation_cast;
+            dma_config.write(instruction);
 
             // Weights
             float *data = it->second.data<float>();
@@ -107,7 +111,7 @@ int sc_main(int argc, char *argv[])
         cout << "@" << sc_time_stamp() << " Start simulation #" << (n + 1) << endl;
 #endif
 
-        sc_start(100000, SC_NS);
+        sc_start(1000000, SC_NS);
 
 #if VERBOSITY_LEVEL >= 1
         cout << "@" << sc_time_stamp() << " Terminating simulation #" << (n + 1) << endl;

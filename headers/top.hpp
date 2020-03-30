@@ -21,12 +21,12 @@ public:
     sc_in<bool> reset;
 
     // IO
-    sc_fifo_in< sc_uint<32> > dma_config;
+    sc_fifo_in< sc_uint<64> > dma_config;
     sc_fifo_in<float> dma_weight;
     sc_fifo_in<float> dma_input;
     sc_fifo_out<float> dma_output;
 
-    sc_fifo<sc_uint<17>> npu_instructions[CORE];
+    sc_fifo<sc_uint<34>> npu_instructions[CORE];
     sc_fifo<float> npu_weight[CORE];
     sc_fifo<float> npu_input[CORE];
     sc_fifo<float> npu_output[CORE];

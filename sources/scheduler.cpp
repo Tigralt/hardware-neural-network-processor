@@ -17,7 +17,7 @@ void scheduler_module::process(void)
 #pragma HLS resource core = AXI4Stream variable = npu_input
 #pragma HLS resource core = AXI4Stream variable = npu_output
 
-	sc_uint<15> instruction_input_layer, instruction_output_layer;
+	sc_uint<30> instruction_input_layer, instruction_output_layer;
 
 	while (true)
 	{
@@ -27,8 +27,8 @@ void scheduler_module::process(void)
 		{
 			state_instruction_buffer[i] = from_dma_instructions.read();
 		}
-		instruction_input_layer = (state_instruction_buffer[0] & 0b11111111111111100000000000000000) >> 17;
-		instruction_output_layer = (state_instruction_buffer[state_instruction_counter - 1] & 0b00000000000000011111111111111100) >> 2;
+		instruction_input_layer = (state_instruction_buffer[0]) >> 34;
+		instruction_output_layer = state_instruction_buffer[state_instruction_counter - 1] >> 4;
 
 		// Load inputs
 		for (unsigned int i = 0; i < instruction_input_layer; i++)
@@ -39,9 +39,9 @@ void scheduler_module::process(void)
 		// Process neural network
 		for (unsigned int instruction_index = 0; instruction_index < state_instruction_counter; instruction_index++)
 		{
-			sc_uint<15> state_current_length = (state_instruction_buffer[instruction_index] & 0b11111111111111100000000000000000) >> 17;
-			sc_uint<15> state_next_length = (state_instruction_buffer[instruction_index] & 0b00000000000000011111111111111100) >> 2;
-			sc_uint<2> state_activation_function = state_instruction_buffer[instruction_index] & 0b11;
+			sc_uint<30> state_current_length = state_instruction_buffer[instruction_index] >> 34;
+			sc_uint<30> state_next_length = state_instruction_buffer[instruction_index] >> 4;
+			sc_uint<4> state_activation_function = state_instruction_buffer[instruction_index] & 0b1111;
 
 #ifndef __SYNTHESIS__
 #if VERBOSITY_LEVEL >= 2
@@ -57,7 +57,7 @@ void scheduler_module::process(void)
 				// If there is less nodes than cores, do not start unused cores
 				for (unsigned int i = 0; i + core_done < state_next_length && i < CORE; i++)
 				{
-					npu_instructions[i].write((state_current_length << 2) + state_activation_function);
+					npu_instructions[i].write((state_current_length << 4) + state_activation_function);
 				}
 
 				// Send data to cores

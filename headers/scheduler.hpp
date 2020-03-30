@@ -6,7 +6,7 @@
 
 #define CORE 4
 #define INSTRUCTION_BUFFER 512
-#define INPUT_BUFFER 32768
+#define INPUT_BUFFER 65536
 
 SC_MODULE(scheduler_module)
 {
@@ -15,18 +15,18 @@ SC_MODULE(scheduler_module)
     sc_in<bool> reset;
     sc_fifo_in<float> from_dma_weight;
     sc_fifo_in<float> from_dma_input;
-    sc_fifo_in< sc_uint<32> > from_dma_instructions;
+    sc_fifo_in< sc_uint<64> > from_dma_instructions;
     sc_fifo_out<float> to_dma;
 
     // PROCESSING ENGINES
-    sc_fifo_out< sc_uint<17> > npu_instructions[CORE];
+    sc_fifo_out< sc_uint<34> > npu_instructions[CORE];
     sc_fifo_out<float> npu_weight[CORE];
     sc_fifo_out<float> npu_input[CORE];
     sc_fifo_in<float> npu_output[CORE];
 
     // STATES
-    sc_uint<32> state_instruction_counter;
-    sc_uint<32> state_instruction_buffer[INSTRUCTION_BUFFER];
+    sc_uint<64> state_instruction_counter;
+    sc_uint<64> state_instruction_buffer[INSTRUCTION_BUFFER];
     float state_input_buffer[INPUT_BUFFER];
     float state_output_buffer[INPUT_BUFFER];
 

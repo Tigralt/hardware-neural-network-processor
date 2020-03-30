@@ -8,15 +8,15 @@ void processing_engine_module::process(void)
 #pragma HLS resource core = AXI4Stream variable = to_scheduler
 
     // Init
-    sc_uint<17> instructions;
+    sc_uint<34> instructions;
     float input, weight, output;
 
     while (true)
     {
         output = 0.f;
         from_scheduler_instructions.read(instructions);
-        state_length = instructions >> 2;
-        state_activation_function = instructions & 0b11;
+        state_length = instructions >> 4;
+        state_activation_function = instructions & 0b1111;
 
 #ifndef __SYNTHESIS__
 #if VERBOSITY_LEVEL >= 2
